@@ -37,6 +37,19 @@ class UserService extends BaseService
 
     public function deleteUser(int $code): bool
     {
-        return $this->pdo->prepare("UPDATE users SET isActive = 0 WHERE code = ?")->execute([$code]);
+        $stmt = $this->pdo->prepare("SELECT isActive FROM users WHERE code = ?");
+        $stmt->execute([$code]);
+        $user = $stmt->fetch();
+
+        if (!$user) {
+            throw new \Exception("User not found.");
+        }
+
+        if (!(bool)$user['isActive']) {
+            throw new \Exception("Account is already disabled.");
+        }
+
+        return $this->pdo->prepare("UPDATE users SET isActive = 0, updatedAt = NOW() WHERE code = ?")
+            ->execute([$code]);
     }
 }
