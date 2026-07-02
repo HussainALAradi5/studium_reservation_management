@@ -39,14 +39,14 @@ class AuthorizationService extends BaseService
     /**
      * Authenticates the user.
      */
-    public function login(string $userName, string $password): ?array
+    public function login(string $userName, string $password): ?User
     {
         $stmt = $this->pdo->prepare("SELECT * FROM users WHERE userName = ? AND isActive = 1");
         $stmt->execute([$userName]);
-        $user = $stmt->fetch();
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
 
-        if ($user && Security::verifyPassword($password, $user['password'])) {
-            return $user;
+        if ($row && Security::verifyPassword($password, $row['password'])) {
+            return User::fromDatabase($row);
         }
         return null;
     }
@@ -58,23 +58,26 @@ class AuthorizationService extends BaseService
      * @param string $scope ('own' or 'all')
      * @param int|null $resourceOwnerId ID of the object owner
      */
-    public function can(array $user, string $action, string $scope = 'own', ?int $resourceOwnerId = null): bool
+    /**
+     * Odoo-style access control check.
+     * @param User $user The logged-in User object
+     */
+    public function can(User $user, string $action, string $scope = 'own', ?int $resourceOwnerId = null): bool
     {
-        $isAdmin = ($user['userType'] === UserType::ADMIN->value);
-        $isOwner = ($resourceOwnerId !== null && (int)$user['code'] === $resourceOwnerId);
+        // Now $user->userType is the UserType Enum
+        $isAdmin = ($user->userType === UserType::ADMIN);
 
-        // 1. Admin can perform any action on anything ('all')
+        // Now $user->code is the integer
+        $isOwner = ($resourceOwnerId !== null && $user->code === $resourceOwnerId);
+
         if ($isAdmin) {
             return true;
         }
 
-        // 2. If scope is 'all', only Admins (handled above) can proceed
         if ($scope === 'all') {
             return false;
         }
 
-        // 3. For 'own' scope, allow if user is the owner
-        // You can expand this with Access::all() if you need stricter conditions
         return Access::any($isOwner);
     }
 }

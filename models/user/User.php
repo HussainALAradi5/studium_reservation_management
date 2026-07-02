@@ -62,4 +62,22 @@ class User
             date('Y-m-d H:i:s')
         );
     }
+
+    public static function fromDatabase(array $data): self
+    {
+        return new self(
+            (int)$data['code'],
+            $data['userName'],
+            $data['password'],
+            $data['email'],
+            $data['phoneNumber'],
+            $data['secondPhoneNumber'] ?? '',
+            $data['birthDay'],
+            (bool)$data['isActive'],
+            Gender::from($data['gender']),
+            UserType::from($data['userType']),
+            $data['createdAt'],
+            $data['updatedAt']
+        );
+    }
 };
