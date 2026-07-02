@@ -37,4 +37,29 @@ class User
             'userType'          => $this->userType->value
         ];
     }
+
+
+    public static function fromRegistration(
+        string $userName,
+        string $password,
+        string $email,
+        string $phoneNumber,
+        Gender $gender,
+        UserType $userType
+    ): self {
+        return new self(
+            0,
+            $userName,
+            $password,
+            $email,
+            $phoneNumber,
+            '',
+            '',
+            true,
+            $gender,
+            $userType,
+            date('Y-m-d H:i:s'),
+            date('Y-m-d H:i:s')
+        );
+    }
 };
