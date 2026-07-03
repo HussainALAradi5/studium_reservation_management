@@ -1,25 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Studium Reservation Management</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="assets/javascripts/Button.js" defer></script>
-    <script>
-        tailwind.config = { darkMode: 'class' };
-    </script>
-</head>
-<body class="bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
-    
-    <?php include 'views/partials/header.php'; ?>
+<?php
+session_start();
+$currentUser = $_SESSION['user'] ?? null;
 
-    <main class="max-w-7xl mx-auto px-6 py-10 min-h-screen">
-        <?php include 'views/home.php'; ?>
-    </main>
+// Get the requested page from the URL (e.g., index.php?page=register)
+$page = $_GET['page'] ?? 'home'; 
 
-    <?php include 'views/partials/footer.php'; ?>
+// Logic to determine which content to load
+$contentMap = [
+    'home'     => 'views/home.php',
+    'register' => 'views/auth/register.php',
+    'login'    => 'views/auth/login.php',
+    'profile'  => 'views/user/profile.php'
+];
 
-    <script src="assets/javascripts/theme.js" defer></script>
-</body>
-</html>
+$viewFile = $contentMap[$page] ?? 'views/home.php';
+
+ob_start();
+include $viewFile;
+$content = ob_get_clean();
+include 'views/layouts/app.php';
+?>
