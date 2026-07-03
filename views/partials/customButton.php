@@ -1,11 +1,15 @@
 <?php
 $btnText = $btnText ?? 'Submit';
 $btnId = $btnId ?? 'submit-btn-' . uniqid(); 
+$btnVariant = $btnVariant ?? 'btn-solid'; 
+$btnSize = $btnSize ?? 'btn-md';
+
+$classes = "btn-modern $btnVariant $btnSize";
 ?>
 
 <button 
     id="<?php echo htmlspecialchars($btnId); ?>" 
     type="button"
-    class="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 dark:disabled:bg-slate-700 text-white font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-lg disabled:cursor-not-allowed">
+    class="<?php echo htmlspecialchars($classes); ?>">
     <?php echo htmlspecialchars($btnText); ?>
 </button>
