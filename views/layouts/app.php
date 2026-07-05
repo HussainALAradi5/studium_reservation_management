@@ -11,7 +11,8 @@ $content = $content ?? '<p>Content missing.</p>';
     <script src="https://cdn.tailwindcss.com"></script>
     <script>tailwind.config = { darkMode: 'class' };</script>
     <!-- Ensure the path matches your project structure -->
-    <link rel="stylesheet" href="/assets/css/styles/style.css">
+    <link rel="stylesheet" href="./assets/css/styles/style.css">
+    <script src="./assets/javascripts/theme.js" defer></script>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
     <?php include __DIR__ . '/../partials/header.php'; ?>
