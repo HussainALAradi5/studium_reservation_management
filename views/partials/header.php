@@ -11,7 +11,7 @@
 
         <div class="flex items-center gap-2">
             <?php 
-                $btnText = 'Toggle'; 
+                $btnText = 'Dark Mode'; 
                 $btnId = 'theme-toggle';
                 $btnVariant = 'btn-ghost'; 
                 $btnSize = 'btn-md';
