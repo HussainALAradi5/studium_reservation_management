@@ -1,10 +1,10 @@
 
-function updateButtonText(isDark) {
+const updateButtonText = (isDark) => {
     const toggle = document.getElementById('theme-toggle');
     if (toggle) {
         toggle.innerText = isDark ? 'Light Mode' : 'Dark Mode';
     }
-}
+};
 
 const isDarkMode = localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
@@ -17,7 +17,6 @@ if (isDarkMode) {
 document.addEventListener('DOMContentLoaded', () => {
     const toggle = document.getElementById('theme-toggle');
     
-    updateButtonText(document.documentElement.classList.contains('dark'));
     
     if (toggle) {
         toggle.addEventListener('click', () => {
