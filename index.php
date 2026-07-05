@@ -12,7 +12,7 @@ $contentMap = [
     'login'    => 'views/auth/login.php',
     'profile'  => 'views/user/profile.php'
 ];
-
+define('SITE_ROOT', '/studium_reservation_management');
 $viewFile = $contentMap[$page] ?? 'views/home.php';
 
 ob_start();

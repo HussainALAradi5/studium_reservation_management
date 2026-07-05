@@ -1,6 +1,8 @@
 <?php
 // Fallback to prevent Undefined variable error in the IDE
 $content = $content ?? '<p>Content missing.</p>';
+// Ensure SITE_ROOT is defined if accessed directly
+defined('SITE_ROOT') or define('SITE_ROOT', '/studium_reservation_management');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -10,9 +12,8 @@ $content = $content ?? '<p>Content missing.</p>';
     <title>Studium</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>tailwind.config = { darkMode: 'class' };</script>
-    <!-- Ensure the path matches your project structure -->
-    <link rel="stylesheet" href="./assets/css/styles/style.css">
-    <script src="./assets/javascripts/theme.js" defer></script>
+    <link rel="stylesheet" href="<?= SITE_ROOT ?>/assets/css/styles/style.css">
+    <script src="<?= SITE_ROOT ?>/assets/javascripts/theme.js" defer></script>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
     <?php include __DIR__ . '/../partials/header.php'; ?>

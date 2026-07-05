@@ -1,19 +1,21 @@
 <?php
-// Assuming $currentUser is set by your application session
+// Ensure SITE_ROOT is available
+if (!defined('SITE_ROOT')) define('SITE_ROOT', '/studium_reservation_management');
+
 $isLoggedIn = isset($currentUser);
 
 $navLinks = [];
 
 if ($isLoggedIn) {
     $navLinks = [
-        ['name' => 'Dashboard', 'url' => 'index.php'],
-        ['name' => 'Profile', 'url' => 'views/user/profile.php'], 
-        ['name' => 'Logout', 'url' => 'logout.php'],
+        ['name' => 'Dashboard', 'url' => SITE_ROOT . '/index.php'],
+        ['name' => 'Profile', 'url' => SITE_ROOT . '/views/user/profile.php'], 
+        ['name' => 'Logout', 'url' => SITE_ROOT . '/logout.php'],
     ];
 } else {
     $navLinks = [
-        ['name' => 'Login', 'url' => 'views/auth/login.php'],     
-        ['name' => 'Register', 'url' => 'views/auth/register.php'], 
+        ['name' => 'Login', 'url' => SITE_ROOT . '/views/auth/login.php'],     
+        ['name' => 'Register', 'url' => SITE_ROOT . '/views/auth/register.php'], 
     ];
 }
 ?>
