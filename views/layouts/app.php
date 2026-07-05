@@ -1,5 +1,5 @@
 <?php
-
+// views/layouts/app.php
 use App\Enums\UI\AlertMessageType;
 
 $content = $content ?? '<p>Content missing.</p>';
@@ -19,19 +19,20 @@ defined('SITE_ROOT') or define('SITE_ROOT', '/studium_reservation_management');
         };
     </script>
     <link rel="stylesheet" href="<?= SITE_ROOT ?>/assets/css/styles/style.css">
+    
     <script src="<?= SITE_ROOT ?>/assets/javascripts/theme.js" defer></script>
     <script src="<?= SITE_ROOT ?>/assets/javascripts/alert.js" defer></script>
     <script src="<?= SITE_ROOT ?>/assets/javascripts/custom-select.js" defer></script>
     <script src="<?= SITE_ROOT ?>/assets/javascripts/custom-toggles.js" defer></script>
     <script src="<?= SITE_ROOT ?>/assets/javascripts/custom-button.js" defer></script>
-
+    <script src="<?= SITE_ROOT ?>/assets/javascripts/dialog.js" defer></script>
 </head>
 
 <body class="bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
     <?php include __DIR__ . '/../partials/header.php'; ?>
 
     <main class="max-w-7xl mx-auto px-6 py-10 min-h-screen">
-        <!-- Global Flash Alert Area -->
+        
         <?php if (isset($_SESSION['flash_alert'])): ?>
             <?php
             $alert = $_SESSION['flash_alert'];
@@ -44,8 +45,27 @@ defined('SITE_ROOT') or define('SITE_ROOT', '/studium_reservation_management');
             ?>
         <?php endif; ?>
 
+        <?php if (isset($_SESSION['flash_dialog'])): ?>
+            <?php
+            $dialog = $_SESSION['flash_dialog'];
+            $title = $dialog['title'];
+            $content = $dialog['content'];
+            $isAlertDialog = $dialog['isAlertDialog'];
+            $dialogId = 'flash-dialog';
+            
+            include __DIR__ . '/../partials/dialog.php';
+            
+            echo "<script>
+                    document.addEventListener('DOMContentLoaded', () => {
+                        Dialog.open('flash-dialog');
+                    });
+                  </script>";
+            
+            unset($_SESSION['flash_dialog']);
+            ?>
+        <?php endif; ?>
+
         <?php echo $content; ?>
     </main>
 </body>
-
 </html>
