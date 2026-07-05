@@ -3,6 +3,7 @@ $btnText = $btnText ?? 'Submit';
 $btnId = $btnId ?? 'submit-btn-' . uniqid(); 
 $btnVariant = $btnVariant ?? 'solid'; 
 $btnSize = $btnSize ?? 'md';
+$btnType = $btnType ?? 'submit'; 
 
 $variants = [
     'solid' => 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm',
@@ -18,7 +19,7 @@ $classes = "$baseClasses $padding " . ($variants[$btnVariant] ?? $variants['soli
 
 <button 
     id="<?php echo htmlspecialchars($btnId); ?>" 
-    type="button"
+    type="<?php echo htmlspecialchars($btnType); ?>"
     class="<?php echo htmlspecialchars($classes); ?>">
     <?php echo htmlspecialchars($btnText); ?>
 </button>

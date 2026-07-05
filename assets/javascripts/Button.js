@@ -1,11 +1,16 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const forms = document.querySelectorAll('form');
 
-    const buttons = document.querySelectorAll('button[id^="submit-btn"]');
-
-    buttons.forEach(button => {
-        button.addEventListener('click', function() {
-            this.disabled = true;
-            this.textContent = 'Processing...';
+    forms.forEach(form => {
+        form.addEventListener('submit', function() {
+            const submitBtn = this.querySelector('button[type="submit"]');
+            
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.dataset.originalText = submitBtn.textContent;
+                
+                submitBtn.textContent = 'Processing...';
+            }
         });
     });
 });

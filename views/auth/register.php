@@ -1,5 +1,4 @@
 <?php
-// views/auth/register.php
 require_once __DIR__ . '/../../configs/bootstrap.php'; 
 
 use App\Controllers\user\UserController;
@@ -21,6 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             UserType::USER
         );
         $userController->register($newUser);
+        
         header('Location: ' . SITE_ROOT . '/index.php?page=login');
         exit;
     } catch (\Exception $e) {
@@ -39,13 +39,25 @@ ob_start();
     <?php
     $cardTitle = "Create an Account";
     ob_start();
+    
     $fields = [
-        ['label' => 'Username', 'name' => 'userName', 'type' => 'text'],
-        ['label' => 'Email', 'name' => 'email', 'type' => 'email'],
-        ['label' => 'Phone Number', 'name' => 'phoneNumber', 'type' => 'tel'],
-        ['label' => 'Password', 'name' => 'password', 'type' => 'password'],
-        ['label' => 'Gender', 'name' => 'gender', 'type' => 'text', 'placeholder' => 'male or female']
+        ['label' => 'Username', 'name' => 'userName', 'type' => 'text', 'required' => true],
+        ['label' => 'Email', 'name' => 'email', 'type' => 'email', 'required' => true],
+        ['label' => 'Phone Number', 'name' => 'phoneNumber', 'type' => 'tel', 'required' => true],
+        ['label' => 'Password', 'name' => 'password', 'type' => 'password', 'required' => true],
+        [
+            'label' => 'Gender', 
+            'name' => 'gender', 
+            'type' => 'select', 
+            'placeholder' => 'Select your gender',
+            'required' => true,
+            'options' => [
+                ['value' => 'male', 'label' => 'Male'],
+                ['value' => 'female', 'label' => 'Female']
+            ]
+        ]
     ];
+    
     include __DIR__ . '/../partials/genericForm.php';
     $cardBody = ob_get_clean();
     include __DIR__ . '/../partials/genericCard.php';
