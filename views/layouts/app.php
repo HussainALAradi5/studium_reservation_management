@@ -22,6 +22,9 @@ defined('SITE_ROOT') or define('SITE_ROOT', '/studium_reservation_management');
     <script src="<?= SITE_ROOT ?>/assets/javascripts/theme.js" defer></script>
     <script src="<?= SITE_ROOT ?>/assets/javascripts/alert.js" defer></script>
     <script src="<?= SITE_ROOT ?>/assets/javascripts/custom-select.js" defer></script>
+    <script src="<?= SITE_ROOT ?>/assets/javascripts/custom-toggles.js" defer></script>
+    <script src="<?= SITE_ROOT ?>/assets/javascripts/custom-button.js" defer></script>
+
 </head>
 
 <body class="bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
