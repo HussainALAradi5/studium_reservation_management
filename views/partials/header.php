@@ -1,7 +1,9 @@
 <header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 transition-colors duration-300">
     <nav class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
         <!-- Logo -->
-        <div class="text-xl font-bold text-slate-900 dark:text-white">Studium</div>
+        <a href="<?= SITE_ROOT ?>/index.php" class="text-xl font-bold text-slate-900 dark:text-white hover:opacity-80 transition-opacity">
+            Studium
+        </a>
         
         <div class="hidden md:flex">
             <?php include 'Navbar.php'; ?>
