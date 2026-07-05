@@ -1,17 +1,11 @@
 <?php
-require_once 'config.php';
-
+// db.php
 try {
-    $dsn = "mysql:host=" . DB_HOST . ";port=" . DB_PORT . ";charset=utf8mb4";
-    $pdo = new PDO($dsn, DB_USER, DB_PASS, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+    $dsn = sprintf("mysql:host=%s;dbname=%s;port=%s;charset=utf8mb4", DB_HOST, DB_NAME, DB_PORT);
+    $pdo = new \PDO($dsn, DB_USER, DB_PASS, [
+        \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+        \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC
     ]);
-    $pdo->exec("CREATE DATABASE IF NOT EXISTS `" . DB_NAME . "` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
-    $pdo->exec("USE `" . DB_NAME . "`");
-
-} catch (PDOException $e) {
-    echo "<h1>Debug Info</h1>";
-    echo "<strong>Error Message:</strong> " . $e->getMessage() . "<br>";
-    echo "<strong>DSN Used:</strong> " . $dsn . "<br>";
-    exit('Connection process terminated.');
+} catch (\PDOException $e) {
+    die("Database connection failed: " . $e->getMessage());
 }

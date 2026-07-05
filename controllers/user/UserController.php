@@ -14,11 +14,17 @@ class UserController
         private AuthorizationService $authService
     ) {}
 
-    public function register(string $userName, string $password, string $email, string $phoneNumber, string $gender, string $userType): bool
+    public function register(User $newUser): bool
     {
-        return $this->authService->register($userName, $password, $email, $phoneNumber, $gender, $userType);
+        return $this->authService->register(
+            $newUser->userName,
+            $newUser->password,
+            $newUser->email,
+            $newUser->phoneNumber,
+            $newUser->gender->value,
+            $newUser->userType->value
+        );
     }
-
 
     public function create(User $newUser, User $currentUser): bool
     {
@@ -40,7 +46,7 @@ class UserController
         return $this->userService->updateUser($userCode, $updatedUser);
     }
 
- 
+
     public function delete(int $userCode, User $currentUser): bool
     {
         $isAuthorized = $this->authService->can($currentUser, Access::DELETE, 'own', $userCode) ||
