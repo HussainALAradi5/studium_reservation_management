@@ -9,27 +9,41 @@ use App\Enums\UI\AlertMessageType;
 
 class UserService extends BaseService
 {
+
     public function createUser(User $user): bool
-{
-    $fields = ['email', 'userName', 'phoneNumber'];
-    foreach ($fields as $field) {
-        if (Validation::isDuplicate($this->pdo, $field, $user->$field)) {
-            $this->setAlert(ucfirst($field) . " is already in use.", AlertMessageType::ERROR, "Registration Failed");
-            throw new \Exception("Duplicate entry detected.");
+    {
+        $this->pdo->beginTransaction();
+
+        try {
+            // 1. Calculate the next sequence number safely
+            $stmt = $this->pdo->query("SELECT MAX(CAST(SUBSTRING_INDEX(code, '/', -1) AS UNSIGNED)) as last_seq FROM users");
+            $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+            $nextSequence = ($row['last_seq'] ?? 0) + 1;
+
+            // 2. Assign the code to the existing $user object
+            // This avoids the argument error by setting the property directly
+            $user->code = User::generateCode($nextSequence);
+
+            // 3. Insert the user[cite: 5]
+            $sql = "INSERT INTO users (code, userName, password, email, phoneNumber, birthDay, isActive, gender, userType, createdAt) 
+                VALUES (:code, :userName, :password, :email, :phoneNumber, :birthDay, :isActive, :gender, :userType, NOW())";
+
+            $result = $this->pdo->prepare($sql)->execute($user->toDatabaseParams());
+
+            $this->pdo->commit();
+
+            if ($result) {
+                $this->setAlert("Account created successfully.", AlertMessageType::SUCCESS, "Welcome!");
+            }
+
+            return $result;
+        } catch (\Exception $e) {
+            $this->pdo->rollBack();
+            throw $e;
         }
     }
 
-    $sql = "INSERT INTO users (userName, password, email, phoneNumber, birthDay, isActive, gender, userType, createdAt) 
-            VALUES (:userName, :password, :email, :phoneNumber, :birthDay, :isActive, :gender, :userType, NOW())";
 
-    $result = $this->pdo->prepare($sql)->execute($user->toDatabaseParams());
-    
-    if ($result) {
-        $this->setAlert("Account created successfully. You can now log in.", AlertMessageType::SUCCESS, "Welcome!");
-    }
-
-    return $result;
-}
     public function updateUser(int $code, User $user): bool
     {
         $sql = "UPDATE users SET userName = :userName, email = :email, phoneNumber = :phoneNumber, 

@@ -9,7 +9,7 @@ use App\utilities\Security;
 class User
 {
     public function __construct(
-        public int $code,
+        public string $code,
         public string $userName,
         public string $password,
         public string $email,
@@ -23,9 +23,16 @@ class User
         public string $updatedAt,
     ) {}
 
+    public static function generateCode(int $nextSequence): string
+    {
+        return sprintf('USER/%s/%05d', date('Y'), $nextSequence);
+    }
+
+
     public function toDatabaseParams(bool $hashPassword = true): array
     {
         return [
+            'code'              => $this->code,
             'userName'          => $this->userName,
             'password'          => $hashPassword ? Security::hashPassword($this->password) : $this->password,
             'email'             => $this->email,
@@ -39,16 +46,18 @@ class User
     }
 
 
+    // In User.php
     public static function fromRegistration(
         string $userName,
         string $password,
         string $email,
         string $phoneNumber,
         Gender $gender,
-        UserType $userType
+        UserType $userType,
+        string $code = '' 
     ): self {
         return new self(
-            0,
+            $code,
             $userName,
             $password,
             $email,
@@ -66,7 +75,7 @@ class User
     public static function fromDatabase(array $data): self
     {
         return new self(
-            (int)$data['code'],
+            (string)$data['code'],
             $data['userName'],
             $data['password'],
             $data['email'],

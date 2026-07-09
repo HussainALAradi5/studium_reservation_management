@@ -2,9 +2,6 @@
 
 namespace App\Services;
 
-// In BaseService.php
-namespace App\Services;
-
 abstract class BaseService
 {
     protected \PDO $pdo;
