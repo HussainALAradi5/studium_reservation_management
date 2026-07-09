@@ -43,6 +43,19 @@ class UserService extends BaseService
         }
     }
 
+    /**
+     * Retrieves all users for the Admin Panel data table.
+     */
+    public function getAllUsers(): array
+    {
+        // Omitting passwords and sensitive data for the view
+        $sql = "SELECT code, userName, email, phoneNumber, isActive, userType, createdAt 
+                FROM users 
+                ORDER BY createdAt DESC";
+        return $this->pdo->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+
 
     public function updateUser(int $code, User $user): bool
     {

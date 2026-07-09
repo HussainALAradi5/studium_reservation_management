@@ -29,6 +29,26 @@ class RoleService extends BaseService
         }
     }
 
+
+    /**
+     * Retrieves all groups (roles) for the Roles Panel.
+     */
+    public function getAllRoles(): array
+    {
+        $sql = "SELECT id, name, description FROM groups ORDER BY name ASC";
+        return $this->pdo->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Retrieves all permissions for the Permissions Panel.
+     */
+    public function getAllPermissions(): array
+    {
+        $sql = "SELECT id, key_name, description FROM permissions ORDER BY key_name ASC";
+        return $this->pdo->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+
     public function assignUserToRole(string $userCode, int $roleId): bool
     {
         $stmt = $this->pdo->prepare("INSERT IGNORE INTO user_groups (user_code, group_id) VALUES (?, ?)");

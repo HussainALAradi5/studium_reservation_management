@@ -26,6 +26,21 @@ class UserController
         );
     }
 
+    /**
+     * Endpoint to load data for the AdminPanel (Users List)
+     */
+    public function index(User $currentUser): array
+    {
+        // 1. Gatekeeper Check: Can this user read all users?
+        if (!$this->authService->can($currentUser, 'users', Access::READ, 'all')) {
+            throw new \Exception("Unauthorized: You do not have permission to view the admin panel.");
+        }
+
+        // 2. Fetch and return the data for the view
+        return $this->userService->getAllUsers();
+    }
+
+
     public function create(User $newUser, User $currentUser): bool
     {
         if (!$this->authService->can($currentUser, Access::CREATE, 'all')) {

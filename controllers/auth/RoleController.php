@@ -6,6 +6,7 @@ use App\Models\Auth\Role;
 use App\Services\Auth\RoleService;
 use App\Services\AuthorizationService;
 use App\Models\User\User;
+use App\Utilities\Access;
 
 class RoleController
 {
@@ -44,4 +45,28 @@ class RoleController
         // 2. Execute business logic
         return $this->roleService->assignUserToRole($targetUserCode, $roleId);
     }
+
+
+    /**
+     * Endpoint to load data for the Roles View
+     */
+    public function indexRoles(User $currentUser): array
+    {
+        if (!$this->authService->can($currentUser, 'roles', Access::READ, 'all')) {
+            throw new \Exception("Unauthorized: Cannot view roles.");
+        }
+        return $this->roleService->getAllRoles();
+    }
+
+    /**
+     * Endpoint to load data for the Permissions View
+     */
+    public function indexPermissions(User $currentUser): array
+    {
+        if (!$this->authService->can($currentUser, 'permissions', Access::READ, 'all')) {
+            throw new \Exception("Unauthorized: Cannot view permissions.");
+        }
+        return $this->roleService->getAllPermissions();
+    }
+
 }
