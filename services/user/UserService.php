@@ -56,6 +56,16 @@ class UserService extends BaseService
     }
 
 
+    public function getUserById(string $code): ?User
+    {
+        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE code = ?");
+        $stmt->execute([$code]);
+        $data = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        return $data ? User::fromDatabase($data) : null;
+    }
+
+
 
     public function updateUser(int $code, User $user): bool
     {

@@ -62,12 +62,11 @@ class AuthorizationService extends BaseService
      * Odoo-style access control check.
      * @param User $user The logged-in User object
      */
-    public function can(User $user, string $action, string $scope = 'own', ?int $resourceOwnerId = null): bool
+   public function can(User $user, string $resource, string $action, string $scope = 'own', ?string $resourceOwnerId = null): bool
     {
-        // Now $user->userType is the UserType Enum
         $isAdmin = ($user->userType === UserType::ADMIN);
 
-        // Now $user->code is the integer
+        // String comparison for your 'USER/2026/00001' format
         $isOwner = ($resourceOwnerId !== null && $user->code === $resourceOwnerId);
 
         if ($isAdmin) {

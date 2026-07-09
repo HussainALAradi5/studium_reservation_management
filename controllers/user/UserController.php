@@ -40,6 +40,34 @@ class UserController
         return $this->userService->getAllUsers();
     }
 
+    // In UserController.php
+
+/**
+ * API Endpoint to get a specific user by code.
+ * Handles both 'own' and 'all' read permissions.
+ */
+public function show(string $userCode, User $currentUser): ?User
+{
+    // 1. Authorization Check: 
+    // Can read if they are the owner OR if they have 'all' read access
+    $isAuthorized = $this->authService->can($currentUser, 'users', Access::READ, 'own', $userCode) ||
+                    $this->authService->can($currentUser, 'users', Access::READ, 'all');
+
+    if (!$isAuthorized) {
+        throw new \Exception("Unauthorized: Access denied.");
+    }
+
+    // 2. Fetch Data
+    $user = $this->userService->getUserById($userCode);
+
+    if (!$user) {
+        throw new \Exception("User not found.");
+    }
+
+    return $user;
+}
+
+
 
     public function create(User $newUser, User $currentUser): bool
     {
