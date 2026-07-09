@@ -9,6 +9,7 @@ use App\utilities\Security;
 class User
 {
     public function __construct(
+        public int $id,
         public string $code,
         public string $userName,
         public string $password,
@@ -57,6 +58,7 @@ class User
         string $code = '' 
     ): self {
         return new self(
+            0,
             $code,
             $userName,
             $password,
@@ -75,6 +77,7 @@ class User
     public static function fromDatabase(array $data): self
     {
         return new self(
+            (int)$data['id'],
             (string)$data['code'],
             $data['userName'],
             $data['password'],

@@ -2,7 +2,8 @@
 
 return [
     'users' => [
-        "`code` VARCHAR(50) PRIMARY KEY",
+        "`id` INT AUTO_INCREMENT PRIMARY KEY", 
+        "`code` VARCHAR(50) NOT NULL UNIQUE",  
         "`userName` VARCHAR(100) NOT NULL",
         "`password` VARCHAR(255) NOT NULL",
         "`email` VARCHAR(150) NOT NULL UNIQUE",

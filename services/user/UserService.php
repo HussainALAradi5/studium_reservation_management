@@ -9,34 +9,29 @@ use App\Enums\UI\AlertMessageType;
 
 class UserService extends BaseService
 {
-
+    private function getNextSequence(): int
+    {
+        $stmt = $this->pdo->query("SELECT MAX(CAST(SUBSTRING_INDEX(code, '/', -1) AS UNSIGNED)) as last_seq FROM users");
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return ($row['last_seq'] ?? 0) + 1;
+    }
     public function createUser(User $user): bool
     {
         $this->pdo->beginTransaction();
-
         try {
-            // 1. Calculate the next sequence number safely
-            $stmt = $this->pdo->query("SELECT MAX(CAST(SUBSTRING_INDEX(code, '/', -1) AS UNSIGNED)) as last_seq FROM users");
-            $row = $stmt->fetch(\PDO::FETCH_ASSOC);
-            $nextSequence = ($row['last_seq'] ?? 0) + 1;
-
-            // 2. Assign the code to the existing $user object
-            // This avoids the argument error by setting the property directly
+            $nextSequence = $this->getNextSequence(); // Logic to get last sequence
             $user->code = User::generateCode($nextSequence);
 
-            // 3. Insert the user[cite: 5]
             $sql = "INSERT INTO users (code, userName, password, email, phoneNumber, birthDay, isActive, gender, userType, createdAt) 
                 VALUES (:code, :userName, :password, :email, :phoneNumber, :birthDay, :isActive, :gender, :userType, NOW())";
 
-            $result = $this->pdo->prepare($sql)->execute($user->toDatabaseParams());
+            $this->pdo->prepare($sql)->execute($user->toDatabaseParams());
+
+            // Sync the auto-incremented ID
+            $user->id = (int)$this->pdo->lastInsertId();
 
             $this->pdo->commit();
-
-            if ($result) {
-                $this->setAlert("Account created successfully.", AlertMessageType::SUCCESS, "Welcome!");
-            }
-
-            return $result;
+            return true;
         } catch (\Exception $e) {
             $this->pdo->rollBack();
             throw $e;
