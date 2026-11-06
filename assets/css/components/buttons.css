@@ -1,0 +1,129 @@
+/* customButton (views/partials/ui/customButton.php): variants, sizes, icon, ripple, press, and a loading
+   state that disables the button and swaps in a spinner (assets/javascripts/core/button.js). */
+.btn {
+    --btn-bg: var(--glass-strong);
+    --btn-fg: var(--text);
+    --btn-border: var(--line);
+    --btn-shadow: var(--shadow-sm);
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 42px;
+    padding: 0 18px;
+    border: 1px solid var(--btn-border);
+    border-radius: var(--radius);
+    background: var(--btn-bg);
+    color: var(--btn-fg);
+    font: inherit;
+    font-weight: 650;
+    font-size: 0.92rem;
+    letter-spacing: -0.005em;
+    line-height: 1;
+    white-space: nowrap;
+    cursor: pointer;
+    overflow: hidden;
+    isolation: isolate;
+    text-decoration: none;
+    box-shadow: var(--btn-shadow);
+    -webkit-tap-highlight-color: transparent;
+    transition:
+        transform var(--fast) var(--ease),
+        box-shadow var(--normal) var(--ease),
+        background-color var(--normal) var(--ease),
+        border-color var(--normal) var(--ease),
+        color var(--normal) var(--ease),
+        opacity var(--normal) var(--ease);
+}
+
+.btn:hover { text-decoration: none; transform: translateY(-1px); box-shadow: var(--shadow); }
+.btn:active { transform: translateY(0) scale(0.97); }
+.btn:focus-visible { box-shadow: var(--ring); }
+
+/* Sheen that sweeps across on hover */
+.btn::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.28) 50%, transparent 70%);
+    transform: translateX(-120%);
+    transition: transform 700ms var(--ease);
+}
+.btn:hover::after { transform: translateX(120%); }
+
+.btn--primary {
+    --btn-bg: var(--primary-gradient);
+    --btn-fg: #fff;
+    --btn-border: transparent;
+    --btn-shadow: 0 8px 20px -8px rgba(16, 185, 129, 0.65);
+    background: var(--btn-bg);
+}
+.btn--primary:hover { box-shadow: 0 14px 28px -10px rgba(16, 185, 129, 0.7); }
+
+.btn--secondary { --btn-bg: var(--primary-soft); --btn-fg: var(--primary); --btn-border: transparent; --btn-shadow: none; }
+.btn--ghost { --btn-bg: transparent; --btn-border: transparent; --btn-shadow: none; --btn-fg: var(--text-muted); }
+.btn--ghost:hover { --btn-bg: var(--surface-sunken); --btn-fg: var(--text); box-shadow: none; }
+.btn--outline { --btn-bg: transparent; --btn-border: var(--line); --btn-shadow: none; }
+.btn--glass {
+    --btn-bg: var(--glass);
+    --btn-border: var(--glass-border);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+}
+.btn--danger { --btn-bg: var(--danger); --btn-fg: #fff; --btn-border: transparent; --btn-shadow: 0 8px 20px -10px rgba(220, 38, 38, 0.7); }
+.btn--danger-soft { --btn-bg: var(--danger-soft); --btn-fg: var(--danger); --btn-border: transparent; --btn-shadow: none; }
+.btn--success { --btn-bg: var(--success); --btn-fg: #fff; --btn-border: transparent; }
+
+.btn--sm { min-height: 34px; padding: 0 12px; font-size: 0.84rem; border-radius: var(--radius-sm); gap: 6px; }
+.btn--lg { min-height: 52px; padding: 0 26px; font-size: 1rem; border-radius: var(--radius-lg); }
+.btn--icon { padding: 0; width: 42px; }
+.btn--icon.btn--sm { width: 34px; }
+.btn--block { width: 100%; }
+.btn--pill { border-radius: var(--radius-pill); }
+
+.btn__content { display: inline-flex; align-items: center; gap: inherit; transition: opacity var(--fast), transform var(--normal) var(--ease); }
+.btn__spinner {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    opacity: 0;
+    transform: scale(0.6);
+    transition: opacity var(--fast), transform var(--normal) var(--ease-spring);
+}
+.btn__spinner::before {
+    content: "";
+    width: 1.15em;
+    height: 1.15em;
+    border: 2.25px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+}
+
+.btn.is-loading { pointer-events: none; }
+.btn.is-loading .btn__content { opacity: 0; transform: translateY(4px); }
+.btn.is-loading .btn__spinner { opacity: 1; transform: none; }
+.btn.is-loading[data-loading-text] .btn__content { opacity: 1; transform: none; padding-left: 1.6em; }
+.btn.is-loading[data-loading-text] .btn__spinner { justify-content: start; padding-left: 16px; }
+
+.btn:disabled,
+.btn[aria-disabled="true"] { cursor: not-allowed; opacity: 0.55; transform: none; box-shadow: none; }
+.btn.is-loading:disabled { opacity: 0.85; }
+
+.btn .ripple {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    margin: -40px 0 0 -40px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.22;
+    transform: scale(0);
+    pointer-events: none;
+    animation: ripple 600ms var(--ease) forwards;
+}
+
+.btn-group { display: inline-flex; gap: 8px; flex-wrap: wrap; }

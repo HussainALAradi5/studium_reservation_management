@@ -1,22 +1,57 @@
 <?php
-// Fallback to prevent Undefined variable error in the IDE
-$content = $content ?? '<p>Content missing.</p>';
+/**
+ * Main layout: glass sidebar + topbar for signed-in users, glass top navigation for guests.
+ *
+ * @var string $content
+ * @var string $title
+ * @var string $currentPath
+ */
+use App\Utilities\Security\Session;
+
+$user = current_user();
+$flash = Session::pullFlash();
 ?>
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Studium</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>tailwind.config = { darkMode: 'class' };</script>
-    <!-- Ensure the path matches your project structure -->
-    <link rel="stylesheet" href="/assets/css/styles/style.css">
+    <?= partial('layout/head', ['title' => $title ?? '', 'needsMap' => $needsMap ?? false]) ?>
 </head>
-<body class="bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
-    <?php include __DIR__ . '/../partials/header.php'; ?>
-    <main class="max-w-7xl mx-auto px-6 py-10 min-h-screen">
-        <?php echo $content; ?>
-    </main>
+<body<?= $flash ? ' data-flash="' . e(json_encode($flash)) . '"' : '' ?>>
+<?= partial('ui/icons') ?>
+<?php if ($user): ?>
+    <div class="shell" data-shell>
+        <?= partial('layout/sidebar', ['currentPath' => $currentPath ?? '/']) ?>
+        <div class="main">
+            <header class="topbar">
+                <?= button('Open menu', ['variant' => 'ghost', 'iconOnly' => true, 'icon' => 'menu', 'attrs' => ['class' => 'topbar__menu', 'data-nav-toggle' => true, 'aria-controls' => 'sidebar']]) ?>
+                <div class="topbar__title"><?= e($title ?? '') ?></div>
+                <?= partial('layout/themeToggle') ?>
+                <a class="user-chip" href="<?= e(url('/profile')) ?>">
+                    <span class="avatar"><?= e($user->initials()) ?></span>
+                    <span class="user-chip__text">
+                        <span class="user-chip__name"><?= e($user->fullName) ?></span><br>
+                        <span class="user-chip__role"><?= e($user->role->label()) ?></span>
+                    </span>
+                </a>
+            </header>
+            <main class="content" id="main"><?= $content ?></main>
+        </div>
+    </div>
+<?php else: ?>
+    <div class="shell shell--guest">
+        <nav class="guest-nav glass" aria-label="Main navigation">
+            <a class="brand" href="<?= e(url('/')) ?>"><span class="brand__mark"><?= icon('ball') ?></span> Studium</a>
+            <div class="guest-nav__links">
+                <a class="nav-link<?= nav_active($currentPath ?? '/', '/stadiums') ?>" href="<?= e(url('/stadiums')) ?>"><?= icon('stadium') ?><span>Stadiums</span></a>
+            </div>
+            <?= partial('layout/themeToggle') ?>
+            <?= button('Sign in', ['variant' => 'ghost', 'href' => url('/login'), 'icon' => 'login']) ?>
+            <?= button('Get started', ['href' => url('/register'), 'pill' => true, 'attrs' => ['class' => 'btn__label-optional']]) ?>
+        </nav>
+        <main class="guest-content" id="main"><?= $content ?></main>
+        <footer class="footer">&copy; <?= date('Y') ?> Studium · Stadium rentals made simple</footer>
+    </div>
+<?php endif; ?>
+<div class="toasts" data-toasts aria-live="polite"></div>
 </body>
 </html>

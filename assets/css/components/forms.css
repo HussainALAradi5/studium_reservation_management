@@ -1,0 +1,118 @@
+/* genericForm / genericField / genericFilter (views/partials/forms/*). */
+.form { display: flex; flex-direction: column; gap: 20px; }
+.form__grid { display: grid; gap: 16px 18px; grid-template-columns: repeat(var(--cols, 1), minmax(0, 1fr)); }
+.form__grid--2 { --cols: 2; }
+.form__grid--3 { --cols: 3; }
+.form__section { display: flex; flex-direction: column; gap: 14px; }
+.form__section-title { font-size: 0.8rem; font-weight: 750; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-soft); margin: 4px 0 0; }
+.form__actions { display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
+
+@media (max-width: 640px) {
+    .form__grid--2, .form__grid--3 { --cols: 1; }
+}
+
+.field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.field--full { grid-column: 1 / -1; }
+.field__label { font-size: 0.84rem; font-weight: 650; color: var(--text); display: flex; gap: 4px; }
+.field__label .req { color: var(--danger); }
+.field__hint { font-size: 0.78rem; color: var(--text-soft); }
+.field__error { font-size: 0.8rem; color: var(--danger); font-weight: 600; min-height: 0; display: none; }
+.field.has-error .field__error { display: block; animation: fade-down var(--normal) var(--ease); }
+
+.field__control { position: relative; display: flex; align-items: center; }
+.field__icon {
+    position: absolute; left: 14px; color: var(--text-soft); pointer-events: none;
+    transition: color var(--fast);
+}
+.field__control:focus-within .field__icon { color: var(--primary); }
+
+.input,
+.select,
+.textarea {
+    width: 100%;
+    min-height: 46px;
+    padding: 11px 14px;
+    border-radius: var(--radius);
+    border: 1px solid var(--line);
+    background: var(--glass-strong);
+    color: var(--text);
+    font: inherit;
+    font-size: 0.93rem;
+    transition: border-color var(--fast), box-shadow var(--normal) var(--ease), background-color var(--normal);
+    appearance: none;
+}
+.field__control .field__icon + .input,
+.field__control .field__icon + .select { padding-left: 42px; }
+.input::placeholder, .textarea::placeholder { color: var(--text-soft); }
+.input:hover, .select:hover, .textarea:hover { border-color: color-mix(in srgb, var(--primary) 35%, var(--line)); }
+.input:focus, .select:focus, .textarea:focus { outline: none; border-color: var(--primary); box-shadow: var(--ring); }
+.textarea { min-height: 100px; resize: vertical; }
+.select {
+    padding-right: 40px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%238a9994' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+}
+.field.has-error .input,
+.field.has-error .select,
+.field.has-error .textarea,
+.field.has-error .picker-trigger { border-color: var(--danger); }
+.field.has-error .field__control { animation: shake 420ms var(--ease); }
+
+.input-addon {
+    position: absolute; right: 6px; height: 34px; width: 34px; border: 0; border-radius: var(--radius-sm);
+    display: grid; place-items: center; background: transparent; color: var(--text-soft); cursor: pointer;
+}
+.input-addon:hover { background: var(--surface-sunken); color: var(--text); }
+
+/* Switch */
+.switch { display: inline-flex; align-items: center; gap: 12px; cursor: pointer; user-select: none; font-weight: 600; font-size: 0.9rem; }
+.switch input { position: absolute; opacity: 0; pointer-events: none; }
+.switch__track {
+    width: 46px; height: 28px; border-radius: var(--radius-pill); background: var(--neutral-soft);
+    position: relative; transition: background-color var(--normal) var(--ease); flex: none;
+    border: 1px solid var(--line);
+}
+.switch__track::after {
+    content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%;
+    background: #fff; box-shadow: var(--shadow-sm); transition: transform var(--normal) var(--ease-spring);
+}
+.switch input:checked + .switch__track { background: var(--primary-gradient); border-color: transparent; }
+.switch input:checked + .switch__track::after { transform: translateX(18px); }
+.switch input:focus-visible + .switch__track { box-shadow: var(--ring); }
+
+/* Checkbox chip (permission matrix, multi-select) */
+.check {
+    display: inline-flex; align-items: center; gap: 10px; cursor: pointer; padding: 10px 12px;
+    border-radius: var(--radius); border: 1px solid var(--line); background: var(--glass-strong);
+    transition: all var(--fast) var(--ease); font-size: 0.88rem; font-weight: 600;
+}
+.check input { width: 18px; height: 18px; accent-color: var(--primary); }
+.check:has(input:checked) { border-color: var(--primary); background: var(--primary-soft); }
+.check:has(input:disabled) { opacity: 0.7; cursor: not-allowed; }
+
+/* Segmented control (booking type, tabs) */
+.segmented {
+    display: inline-flex; padding: 4px; gap: 4px; border-radius: var(--radius); background: var(--surface-sunken);
+    border: 1px solid var(--line);
+}
+.segmented__option {
+    border: 0; background: transparent; color: var(--text-muted); font: inherit; font-weight: 650; font-size: 0.88rem;
+    padding: 8px 16px; border-radius: var(--radius-sm); cursor: pointer; display: inline-flex; gap: 8px; align-items: center;
+    transition: all var(--normal) var(--ease);
+}
+.segmented__option.is-active { background: var(--glass-strong); color: var(--text); box-shadow: var(--shadow-sm); }
+
+/* Stepper (number of days / hours) */
+.stepper { display: inline-flex; align-items: center; gap: 4px; padding: 4px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--glass-strong); }
+.stepper__value { min-width: 64px; text-align: center; font-weight: 750; }
+
+/* Generic filter bar */
+.filters {
+    display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; padding: 14px;
+    border-radius: var(--radius-lg);
+}
+.filters .field { flex: 1 1 180px; }
+.filters .field--search { flex: 2 1 240px; }
+.filters__actions { display: flex; gap: 8px; align-items: center; }
+.filters .field__label { font-size: 0.74rem; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.05em; }

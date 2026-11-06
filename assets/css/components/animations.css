@@ -1,0 +1,83 @@
+/* Generic, reusable animations. Use the utility classes or data-animate="fade-up" (revealed on scroll by
+   assets/javascripts/ui/animate.js). Children of [data-stagger] animate one after another. */
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fade-up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes fade-down { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: none; } }
+@keyframes scale-in { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: none; } }
+@keyframes slide-in-right { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: none; } }
+@keyframes slide-up-sheet { from { transform: translateY(100%); } to { transform: none; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes ripple { to { transform: scale(4); opacity: 0; } }
+@keyframes shimmer { 100% { transform: translateX(100%); } }
+@keyframes pulse-ring {
+    0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.45); }
+    100% { box-shadow: 0 0 0 12px rgba(16, 185, 129, 0); }
+}
+@keyframes shake {
+    10%, 90% { transform: translateX(-1px); }
+    20%, 80% { transform: translateX(2px); }
+    30%, 50%, 70% { transform: translateX(-4px); }
+    40%, 60% { transform: translateX(4px); }
+}
+@keyframes blob-drift {
+    from { transform: translate3d(0, 0, 0) rotate(0deg); }
+    to { transform: translate3d(2vmax, -2vmax, 0) rotate(8deg); }
+}
+
+.anim-fade-in { animation: fade-in var(--normal) var(--ease) both; }
+.anim-fade-up { animation: fade-up var(--slow) var(--ease) both; }
+.anim-scale-in { animation: scale-in var(--normal) var(--ease-spring) both; }
+.anim-shake { animation: shake 420ms var(--ease) both; }
+.anim-pulse { animation: pulse-ring 1.6s var(--ease) infinite; }
+
+[data-animate] { opacity: 0; }
+[data-animate].is-visible { animation: var(--anim, fade-up) var(--slow) var(--ease) both; animation-delay: var(--delay, 0ms); }
+[data-animate="fade-in"] { --anim: fade-in; }
+[data-animate="scale-in"] { --anim: scale-in; }
+[data-animate="slide-in-right"] { --anim: slide-in-right; }
+
+[data-stagger] > * { animation: fade-up var(--slow) var(--ease) both; }
+[data-stagger] > *:nth-child(1) { animation-delay: 0ms; }
+[data-stagger] > *:nth-child(2) { animation-delay: 50ms; }
+[data-stagger] > *:nth-child(3) { animation-delay: 100ms; }
+[data-stagger] > *:nth-child(4) { animation-delay: 150ms; }
+[data-stagger] > *:nth-child(5) { animation-delay: 200ms; }
+[data-stagger] > *:nth-child(6) { animation-delay: 250ms; }
+[data-stagger] > *:nth-child(n + 7) { animation-delay: 300ms; }
+
+/* Loading placeholder */
+.skeleton {
+    position: relative;
+    overflow: hidden;
+    background: var(--surface-sunken);
+    border-radius: var(--radius-sm);
+    min-height: 1em;
+}
+.skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+    animation: shimmer 1.3s infinite;
+}
+
+.spinner {
+    width: 1.1em;
+    height: 1.1em;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: inline-block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 1ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 1ms !important;
+        scroll-behavior: auto !important;
+    }
+    [data-animate] { opacity: 1; }
+}

@@ -1,0 +1,59 @@
+/* Dialogs (native <dialog>) and toasts. */
+.dialog {
+    width: min(560px, calc(100vw - 24px));
+    max-height: calc(100vh - 48px);
+    padding: 0;
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-xl);
+    background: var(--glass-strong);
+    color: var(--text);
+    backdrop-filter: blur(28px) saturate(180%);
+    -webkit-backdrop-filter: blur(28px) saturate(180%);
+    box-shadow: var(--shadow-lg);
+    overflow: auto;
+}
+.dialog[open] { animation: scale-in var(--normal) var(--ease-spring); }
+.dialog::backdrop { background: rgba(4, 10, 8, 0.45); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); animation: fade-in var(--normal); }
+.dialog--sm { width: min(420px, calc(100vw - 24px)); }
+.dialog--lg { width: min(760px, calc(100vw - 24px)); }
+.dialog__header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 20px 22px 6px; }
+.dialog__title { margin: 0; font-size: 1.12rem; }
+.dialog__body { padding: 12px 22px 22px; }
+.dialog__icon {
+    width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; margin-bottom: 12px;
+    background: var(--tone-soft, var(--primary-soft)); color: var(--tone, var(--primary));
+}
+
+.toasts {
+    position: fixed; z-index: 120; right: 16px; bottom: 16px; left: 16px;
+    display: flex; flex-direction: column; align-items: flex-end; gap: 10px; pointer-events: none;
+}
+.toast {
+    pointer-events: auto;
+    display: flex; align-items: flex-start; gap: 12px;
+    width: min(380px, 100%);
+    padding: 14px 16px;
+    border-radius: var(--radius-lg);
+    background: var(--glass-strong);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(22px) saturate(180%);
+    -webkit-backdrop-filter: blur(22px) saturate(180%);
+    box-shadow: var(--shadow-lg);
+    animation: slide-in-right var(--normal) var(--ease-spring);
+    transition: opacity var(--normal), transform var(--normal) var(--ease);
+}
+.toast.is-leaving { opacity: 0; transform: translateX(24px); }
+.toast__icon { width: 30px; height: 30px; border-radius: 10px; display: grid; place-items: center; flex: none; background: var(--tone-soft); color: var(--tone); }
+.toast__message { flex: 1; font-size: 0.9rem; font-weight: 600; padding-top: 4px; }
+.toast__close { border: 0; background: transparent; color: var(--text-soft); cursor: pointer; padding: 4px; border-radius: 8px; }
+.toast__close:hover { color: var(--text); background: var(--surface-sunken); }
+
+/* Suggestions list in the conflict dialog */
+.suggestions { display: flex; flex-direction: column; gap: 8px; margin: 14px 0 0; padding: 0; list-style: none; }
+.suggestion {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%;
+    padding: 12px 14px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--glass-strong);
+    color: var(--text); font: inherit; font-weight: 650; cursor: pointer; text-align: left;
+    transition: all var(--fast) var(--ease);
+}
+.suggestion:hover { border-color: var(--primary); background: var(--primary-soft); transform: translateX(3px); }
