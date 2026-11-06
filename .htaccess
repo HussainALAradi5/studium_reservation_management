@@ -1,0 +1,17 @@
+Options -Indexes
+DirectoryIndex index.php
+
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Serve real files under assets/ directly; everything else goes through the front controller.
+    RewriteCond %{REQUEST_URI} /assets/
+    RewriteCond %{REQUEST_FILENAME} -f
+    RewriteRule ^ - [L]
+
+    RewriteRule ^ index.php [L,QSA]
+</IfModule>

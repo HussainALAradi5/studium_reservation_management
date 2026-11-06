@@ -1,0 +1,41 @@
+CREATE TABLE payments (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(20) NOT NULL,
+    reservation_id INT UNSIGNED NOT NULL,
+    type ENUM('payment','refund') NOT NULL,
+    method ENUM('cash','card','bank_transfer','online') NOT NULL,
+    amount DECIMAL(10,3) NOT NULL,
+    paid_at DATETIME NOT NULL,
+    reference VARCHAR(80) NULL,
+    notes VARCHAR(255) NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    created_by INT UNSIGNED NULL,
+    updated_by INT UNSIGNED NULL,
+    deleted_at DATETIME NULL,
+    deleted_by INT UNSIGNED NULL,
+    UNIQUE KEY uq_payments_code (code),
+    KEY ix_payments_reservation (reservation_id),
+    KEY ix_payments_paid_at (paid_at),
+    CONSTRAINT fk_payments_reservation FOREIGN KEY (reservation_id) REFERENCES reservations (id) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE expenses (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(20) NOT NULL,
+    stadium_id INT UNSIGNED NOT NULL,
+    category ENUM('maintenance','utilities','salaries','equipment','rent','marketing','other') NOT NULL,
+    amount DECIMAL(10,3) NOT NULL,
+    expense_date DATE NOT NULL,
+    description VARCHAR(255) NOT NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    created_by INT UNSIGNED NULL,
+    updated_by INT UNSIGNED NULL,
+    deleted_at DATETIME NULL,
+    deleted_by INT UNSIGNED NULL,
+    UNIQUE KEY uq_expenses_code (code),
+    KEY ix_expenses_stadium_date (stadium_id, expense_date),
+    KEY ix_expenses_deleted (deleted_at),
+    CONSTRAINT fk_expenses_stadium FOREIGN KEY (stadium_id) REFERENCES stadiums (id) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

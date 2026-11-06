@@ -1,71 +1,57 @@
 <?php
-// views/layouts/app.php
-use App\Enums\UI\AlertMessageType;
+/**
+ * Main layout: glass sidebar + topbar for signed-in users, glass top navigation for guests.
+ *
+ * @var string $content
+ * @var string $title
+ * @var string $currentPath
+ */
+use App\Utilities\Security\Session;
 
-$content = $content ?? '<p>Content missing.</p>';
-defined('SITE_ROOT') or define('SITE_ROOT', '/studium_reservation_management');
+$user = current_user();
+$flash = Session::pullFlash();
 ?>
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Studium</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class'
-        };
-    </script>
-    <link rel="stylesheet" href="<?= SITE_ROOT ?>/assets/css/styles/style.css">
-    
-    <script src="<?= SITE_ROOT ?>/assets/javascripts/theme.js" defer></script>
-    <script src="<?= SITE_ROOT ?>/assets/javascripts/alert.js" defer></script>
-    <script src="<?= SITE_ROOT ?>/assets/javascripts/custom-select.js" defer></script>
-    <script src="<?= SITE_ROOT ?>/assets/javascripts/custom-toggles.js" defer></script>
-    <script src="<?= SITE_ROOT ?>/assets/javascripts/custom-button.js" defer></script>
-    <script src="<?= SITE_ROOT ?>/assets/javascripts/dialog.js" defer></script>
+    <?= partial('layout/head', ['title' => $title ?? '', 'needsMap' => $needsMap ?? false]) ?>
 </head>
-
-<body class="bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
-    <?php include __DIR__ . '/../partials/header.php'; ?>
-
-    <main class="max-w-7xl mx-auto px-6 py-10 min-h-screen">
-        
-        <?php if (isset($_SESSION['flash_alert'])): ?>
-            <?php
-            $alert = $_SESSION['flash_alert'];
-            $alertType = AlertMessageType::from($alert['type']);
-            $alertTitle = $alert['title'];
-            $alertMessage = $alert['message'];
-
-            include __DIR__ . '/../partials/alert.php';
-            unset($_SESSION['flash_alert']);
-            ?>
-        <?php endif; ?>
-
-        <?php if (isset($_SESSION['flash_dialog'])): ?>
-            <?php
-            $dialog = $_SESSION['flash_dialog'];
-            $title = $dialog['title'];
-            $content = $dialog['content'];
-            $isAlertDialog = $dialog['isAlertDialog'];
-            $dialogId = 'flash-dialog';
-            
-            include __DIR__ . '/../partials/dialog.php';
-            
-            echo "<script>
-                    document.addEventListener('DOMContentLoaded', () => {
-                        Dialog.open('flash-dialog');
-                    });
-                  </script>";
-            
-            unset($_SESSION['flash_dialog']);
-            ?>
-        <?php endif; ?>
-
-        <?php echo $content; ?>
-    </main>
+<body<?= $flash ? ' data-flash="' . e(json_encode($flash)) . '"' : '' ?>>
+<?= partial('ui/icons') ?>
+<?php if ($user): ?>
+    <div class="shell" data-shell>
+        <?= partial('layout/sidebar', ['currentPath' => $currentPath ?? '/']) ?>
+        <div class="main">
+            <header class="topbar">
+                <?= button('Open menu', ['variant' => 'ghost', 'iconOnly' => true, 'icon' => 'menu', 'attrs' => ['class' => 'topbar__menu', 'data-nav-toggle' => true, 'aria-controls' => 'sidebar']]) ?>
+                <div class="topbar__title"><?= e($title ?? '') ?></div>
+                <?= partial('layout/themeToggle') ?>
+                <a class="user-chip" href="<?= e(url('/profile')) ?>">
+                    <span class="avatar"><?= e($user->initials()) ?></span>
+                    <span class="user-chip__text">
+                        <span class="user-chip__name"><?= e($user->fullName) ?></span><br>
+                        <span class="user-chip__role"><?= e($user->role->label()) ?></span>
+                    </span>
+                </a>
+            </header>
+            <main class="content" id="main"><?= $content ?></main>
+        </div>
+    </div>
+<?php else: ?>
+    <div class="shell shell--guest">
+        <nav class="guest-nav glass" aria-label="Main navigation">
+            <a class="brand" href="<?= e(url('/')) ?>"><span class="brand__mark"><?= icon('ball') ?></span> Studium</a>
+            <div class="guest-nav__links">
+                <a class="nav-link<?= nav_active($currentPath ?? '/', '/stadiums') ?>" href="<?= e(url('/stadiums')) ?>"><?= icon('stadium') ?><span>Stadiums</span></a>
+            </div>
+            <?= partial('layout/themeToggle') ?>
+            <?= button('Sign in', ['variant' => 'ghost', 'href' => url('/login'), 'icon' => 'login']) ?>
+            <?= button('Get started', ['href' => url('/register'), 'pill' => true, 'attrs' => ['class' => 'btn__label-optional']]) ?>
+        </nav>
+        <main class="guest-content" id="main"><?= $content ?></main>
+        <footer class="footer">&copy; <?= date('Y') ?> Studium · Stadium rentals made simple</footer>
+    </div>
+<?php endif; ?>
+<div class="toasts" data-toasts aria-live="polite"></div>
 </body>
 </html>
