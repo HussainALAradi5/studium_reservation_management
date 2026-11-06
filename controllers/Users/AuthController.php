@@ -13,6 +13,9 @@ use App\Utilities\Security\Session;
 
 final class AuthController extends Controller
 {
+    private const LOGIN_DEFAULT_PATH = '/dashboard';
+    private const REGISTER_DEFAULT_PATH = '/stadiums';
+
     public function showLogin(Request $request): void
     {
         $this->render($request, 'auth/login', ['title' => 'Sign in', 'next' => $this->safeNext($request->query('next'))], 'layouts/auth');
@@ -20,7 +23,7 @@ final class AuthController extends Controller
 
     public function showRegister(Request $request): void
     {
-        $this->render($request, 'auth/register', ['title' => 'Create account'], 'layouts/auth');
+        $this->render($request, 'auth/register', ['title' => 'Create account', 'next' => $this->safeNext($request->query('next'), self::REGISTER_DEFAULT_PATH)], 'layouts/auth');
     }
 
     public function login(Request $request): void
@@ -35,7 +38,7 @@ final class AuthController extends Controller
     {
         $user = (new AuthService())->register(RegisterDto::fromInput($request->all()));
         Session::flash('success', 'Welcome to Studium, ' . $user->fullName . '!');
-        $this->done('Account created.', '/stadiums', 201);
+        $this->done('Account created.', $this->safeNext($request->input('next'), self::REGISTER_DEFAULT_PATH), 201);
     }
 
     public function logout(Request $request): void
@@ -45,9 +48,9 @@ final class AuthController extends Controller
     }
 
     /** Only internal paths are allowed as redirect targets (no open redirects). */
-    private function safeNext(mixed $next): string
+    private function safeNext(mixed $next, string $default = self::LOGIN_DEFAULT_PATH): string
     {
         $next = is_string($next) ? $next : '';
-        return preg_match('#^/(?!/)[A-Za-z0-9/_\-]*$#', $next) === 1 && !str_starts_with($next, '/api/') ? $next : '/dashboard';
+        return preg_match('#^/(?!/)[A-Za-z0-9/_\-]*$#', $next) === 1 && !str_starts_with($next, '/api/') ? $next : $default;
     }
 }

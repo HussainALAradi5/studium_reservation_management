@@ -20,7 +20,11 @@ use App\Enums\Stadiums\SurfaceType;
 use App\Exceptions\Common\ValidationException;
 use App\Globals\Auth\CurrentUser;
 use App\Models\Stadiums\Stadium;
+use App\Enums\Users\Permission;
+use App\Services\Common\AccessPolicy;
 use App\Services\Regional\CityService;
+use App\Services\Reviews\ReviewService;
+use App\Services\Users\PermissionService;
 use App\Services\Reservations\ConflictService;
 use App\Services\Settings\SettingsService;
 use App\Services\Stadiums\StadiumService;
@@ -46,6 +50,8 @@ final class StadiumController extends Controller
     {
         $user = CurrentUser::get();
         $stadium = (new StadiumService())->findVisible($user, $request->param('code'));
+        $settings = new SettingsService();
+        $reviews = new ReviewService();
         $this->render($request, 'stadiums/show', [
             'title' => $stadium->name,
             'stadium' => $stadium,
@@ -53,8 +59,13 @@ final class StadiumController extends Controller
             'needsMap' => true,
             'canBook' => $user === null || $user->isCustomer(),
             'bookingUnits' => BookingUnit::options(),
-            'maxHours' => (new SettingsService())->int(SettingsKey::MAX_HOURS_PER_BOOKING),
-            'maxDays' => (new SettingsService())->int(SettingsKey::MAX_DAYS_PER_BOOKING),
+            'maxHours' => $settings->int(SettingsKey::MAX_HOURS_PER_BOOKING),
+            'maxDays' => $settings->int(SettingsKey::MAX_DAYS_PER_BOOKING),
+            // Reviews are only loaded for signed-in users; guests see the average rating only.
+            'reviewPage' => $user ? $reviews->list($stadium, 1) : null,
+            'eligibility' => $user ? $reviews->eligibility($user, $stadium) : null,
+            'canModerateReviews' => $user !== null && (new PermissionService())->can($user, Permission::REVIEWS_MODERATE)
+                && AccessPolicy::canManageStadium($user, $stadium->managerId),
         ]);
     }
 

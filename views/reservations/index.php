@@ -2,6 +2,7 @@
 /**
  * @var \App\Dtos\Common\PageResult $page
  * @var array $filters
+ * @var int $cancelCutoffHours
  * @var array<string, string> $statuses
  * @var \App\Models\Stadiums\Stadium[] $stadiums
  * @var string $currentPath
@@ -32,6 +33,7 @@ $filterFields[] = ['name' => 'to', 'label' => 'To', 'type' => 'date'];
         <div class="card__body">
             <?= partial('reservations/table', [
                 'reservations' => $page->items,
+            'cancelCutoffHours' => $cancelCutoffHours,
                 'showCustomer' => !$user->isCustomer(),
                 'empty' => ['title' => 'No bookings match', 'message' => 'Try clearing the filters.', 'icon' => 'calendar'],
             ]) ?>

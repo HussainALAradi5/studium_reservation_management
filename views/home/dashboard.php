@@ -2,6 +2,7 @@
 /**
  * @var \App\Models\Reservations\Reservation[] $upcoming
  * @var array<string, int> $statusCounts
+ * @var int $cancelCutoffHours
  * @var array|null $summary
  * @var array<string, int> $roleCounts
  */
@@ -41,6 +42,7 @@ $count = static fn (ReservationStatus $status) => (int) ($statusCounts[$status->
         'actions' => button('See all', ['variant' => 'ghost', 'size' => 'sm', 'href' => url('/reservations'), 'iconRight' => 'arrow-right']),
         'body' => partial('reservations/table', [
             'reservations' => $upcoming,
+            'cancelCutoffHours' => $cancelCutoffHours,
             'showCustomer' => !$user->isCustomer(),
             'empty' => ['title' => 'No upcoming bookings', 'message' => $user->isCustomer() ? 'Find a stadium and book your first game.' : 'New requests will show up here.', 'icon' => 'calendar'],
         ]),

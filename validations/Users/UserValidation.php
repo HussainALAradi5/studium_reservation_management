@@ -7,15 +7,17 @@ namespace App\Validations\Users;
 use App\Constants\Common\RegexPatterns;
 use App\Constants\Users\AuthRules;
 use App\Enums\Users\Gender;
+use App\Utilities\Formatting\IdentityNormalizer;
 use App\Utilities\Security\PasswordHasher;
 use App\Validations\Common\Validator;
 
 /** User field rules shared by registration, admin user forms, and profile updates. */
 final class UserValidation
 {
+    /** Identity fields are normalized first, so "Ali.K" and "ali.k" are the same username. */
     public static function identity(array $input): Validator
     {
-        return (new Validator($input))
+        return (new Validator(IdentityNormalizer::userInput($input)))
             ->string('fullName', 'Full name', 3, 120, true, RegexPatterns::PERSON_NAME)
             ->email('email')
             ->string('phone', 'Phone', 8, 16, true, RegexPatterns::PHONE);

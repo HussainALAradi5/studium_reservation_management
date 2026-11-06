@@ -61,7 +61,7 @@ function formatValue(mode, p) {
     return { date, time, month: `${p.year}-${pad(p.month)}`, datetime: `${date} ${time}` }[mode];
 }
 
-export function formatLabel(mode, value) {
+function formatLabel(mode, value) {
     if (!value) return '';
     const p = parseValue(mode, value, 1);
     const weekday = new Date(p.year, p.month - 1, p.day).toLocaleDateString('en-US', { weekday: 'short' });
@@ -274,12 +274,6 @@ export function initWheelPickers(root = document) {
     qsa('[data-wheel-picker]', root).forEach((control) => {
         if (!control.wheelPicker) control.wheelPicker = new WheelPicker(control);
     });
-}
-
-/** Lets other modules set a picker value programmatically (keeps the label in sync). */
-export function setPickerValue(input, value) {
-    input.value = value;
-    input.dispatchEvent(new Event('change', { bubbles: true }));
 }
 
 on(document, 'keydown', '.picker-trigger', (event, trigger) => {

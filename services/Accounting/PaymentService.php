@@ -8,6 +8,7 @@ use App\Config\Database\Database;
 use App\Constants\Common\ErrorCodes;
 use App\Dtos\Accounting\PaymentFormDto;
 use App\Enums\Accounting\TransactionType;
+use App\Enums\Notifications\NotificationTemplate;
 use App\Enums\Reservations\PaymentStatus;
 use App\Enums\Reservations\ReservationStatus;
 use App\Exceptions\Common\AppException;
@@ -19,6 +20,7 @@ use App\Models\Users\User;
 use App\Repositories\Accounting\PaymentRepository;
 use App\Repositories\Reservations\ReservationRepository;
 use App\Services\Common\AccessPolicy;
+use App\Services\Notifications\NotificationService;
 use App\Utilities\Formatting\Money;
 
 /** Rental payments and refunds (docs: workflows/accounting.md). */
@@ -26,7 +28,8 @@ final class PaymentService
 {
     public function __construct(
         private readonly PaymentRepository $payments = new PaymentRepository(),
-        private readonly ReservationRepository $reservations = new ReservationRepository()
+        private readonly ReservationRepository $reservations = new ReservationRepository(),
+        private readonly NotificationService $notifications = new NotificationService()
     ) {
     }
 
@@ -70,7 +73,13 @@ final class PaymentService
                 'payment_status' => PaymentStatus::fromAmounts($paid, $current->totalAmount, $hasRefunds)->value,
             ]);
         });
-        return $this->reservations->findById($reservation->id);
+        $updated = $this->reservations->findById($reservation->id);
+        $this->notifications->notifyCustomer(
+            $updated,
+            $dto->type === TransactionType::REFUND ? NotificationTemplate::PAYMENT_REFUNDED : NotificationTemplate::PAYMENT_RECORDED,
+            ['amount' => Money::format($dto->amount)]
+        );
+        return $updated;
     }
 
     private function assertAllowed(Reservation $reservation, PaymentFormDto $dto): void

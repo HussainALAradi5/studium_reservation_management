@@ -1,11 +1,4 @@
-/** Display formatting shared by widgets. */
-import { meta } from './dom.js';
-
-const currency = meta('currency') || 'BHD';
-
-export function money(amount) {
-    return `${Number(amount ?? 0).toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 })} ${currency}`;
-}
+/** Date formatting shared by widgets (money and prices are formatted by the server). */
 
 export function pad(value) {
     return String(value).padStart(2, '0');
@@ -25,11 +18,11 @@ export function parseIsoDate(value) {
     return new Date(year, (month || 1) - 1, day || 1);
 }
 
-export function plural(count, word) {
-    return `${count} ${word}${Number(count) === 1 ? '' : 's'}`;
+/** Parses the server's "YYYY-MM-DD HH:MM:SS" as local time. */
+export function parseServerDateTime(value) {
+    return new Date(String(value).replace(' ', 'T'));
 }
 
-export function durationLabel(minutes) {
-    const hours = minutes / 60;
-    return Number.isInteger(hours) ? plural(hours, 'hour') : `${hours.toFixed(1)} hours`;
+export function plural(count, word) {
+    return `${count} ${word}${Number(count) === 1 ? '' : 's'}`;
 }

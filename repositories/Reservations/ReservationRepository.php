@@ -12,6 +12,7 @@ use App\Dtos\Reservations\ReservationQuery;
 use App\Enums\Reservations\ReservationStatus;
 use App\Models\Reservations\Reservation;
 use App\Repositories\Base\BaseRepository;
+use App\Utilities\Formatting\IdentityNormalizer;
 use App\Utilities\Pagination\Paginator;
 
 final class ReservationRepository extends BaseRepository
@@ -44,7 +45,7 @@ final class ReservationRepository extends BaseRepository
 
     public function findByCode(string $code): ?Reservation
     {
-        return $this->findOneWhere('r.code = :code', ['code' => $code]);
+        return $this->findOneWhere('r.code = :code', ['code' => IdentityNormalizer::code($code)]);
     }
 
     public function lockById(int $id): void
@@ -112,20 +113,33 @@ final class ReservationRepository extends BaseRepository
         return $this->fetchAllRows($sql . ' ORDER BY start_at', $params);
     }
 
-    /** Cancels pending bookings whose start time passed; returns how many were expired. */
-    public function expireStalePending(): int
+    /**
+     * Cancels pending bookings whose start time passed and returns them (for notifications).
+     * Rows are locked, so two concurrent sweeps never expire the same booking twice.
+     * @return Reservation[]
+     */
+    public function expireStalePending(): array
     {
-        return $this->execute(
-            'UPDATE reservations SET status = :cancelled, status_reason = :reason, updated_at = :now
-             WHERE status = :pending AND start_at <= :now_check AND deleted_at IS NULL',
-            [
-                'cancelled' => ReservationStatus::CANCELLED->value,
-                'reason' => ReservationRules::EXPIRED_REASON,
-                'now' => self::now(),
-                'pending' => ReservationStatus::PENDING->value,
-                'now_check' => self::now(),
-            ]
-        )->rowCount();
+        $this->pdo->beginTransaction();
+        try {
+            $ids = array_map('intval', array_column($this->fetchAllRows(
+                'SELECT id FROM reservations WHERE status = :pending AND start_at <= :now AND deleted_at IS NULL FOR UPDATE',
+                ['pending' => ReservationStatus::PENDING->value, 'now' => self::now()]
+            ), 'id'));
+            if ($ids !== []) {
+                // System action: updated_by stays NULL instead of naming whoever's request ran the sweep.
+                $this->execute(
+                    'UPDATE reservations SET status = :cancelled, status_reason = :reason, updated_at = :now, updated_by = NULL
+                     WHERE id IN (' . implode(', ', $ids) . ')',
+                    ['cancelled' => ReservationStatus::CANCELLED->value, 'reason' => ReservationRules::EXPIRED_REASON, 'now' => self::now()]
+                );
+            }
+            $this->pdo->commit();
+        } catch (\Throwable $error) {
+            $this->pdo->rollBack();
+            throw $error;
+        }
+        return array_map(fn (int $id) => $this->findById($id), $ids);
     }
 
     public function countFutureBlocking(int $stadiumId): int

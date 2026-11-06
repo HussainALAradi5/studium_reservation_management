@@ -10,6 +10,7 @@ use App\Dtos\Common\AccessScope;
 use App\Dtos\Common\PageResult;
 use App\Models\Accounting\Expense;
 use App\Repositories\Base\BaseRepository;
+use App\Utilities\Formatting\IdentityNormalizer;
 use App\Utilities\Pagination\Paginator;
 
 final class ExpenseRepository extends BaseRepository
@@ -32,7 +33,7 @@ final class ExpenseRepository extends BaseRepository
     {
         $row = $this->fetchOne(
             'SELECT ' . self::SELECT . ' ' . self::FROM . ' WHERE e.code = :code AND e.deleted_at IS NULL',
-            ['code' => $code]
+            ['code' => IdentityNormalizer::code($code)]
         );
         return $row ? Expense::fromRow($row) : null;
     }

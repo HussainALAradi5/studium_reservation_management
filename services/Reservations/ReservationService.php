@@ -13,7 +13,7 @@ use App\Dtos\Reservations\CreateReservationDto;
 use App\Dtos\Reservations\ReservationQuery;
 use App\Dtos\Reservations\StatusChangeDto;
 use App\Dtos\Reservations\TimeSlotDto;
-use App\Enums\Reservations\BookingUnit;
+use App\Enums\Notifications\NotificationTemplate;
 use App\Enums\Reservations\PaymentStatus;
 use App\Enums\Reservations\ReservationStatus;
 use App\Enums\Settings\SettingsKey;
@@ -25,6 +25,7 @@ use App\Repositories\Accounting\PaymentRepository;
 use App\Repositories\Reservations\ReservationRepository;
 use App\Repositories\Stadiums\StadiumRepository;
 use App\Services\Common\AccessPolicy;
+use App\Services\Notifications\NotificationService;
 use App\Services\Settings\SettingsService;
 use App\Services\Stadiums\StadiumService;
 
@@ -39,7 +40,8 @@ final class ReservationService
         private readonly PaymentRepository $payments = new PaymentRepository(),
         private readonly StadiumService $stadiumService = new StadiumService(),
         private readonly ConflictService $conflicts = new ConflictService(),
-        private readonly SettingsService $settings = new SettingsService()
+        private readonly SettingsService $settings = new SettingsService(),
+        private readonly NotificationService $notifications = new NotificationService()
     ) {
     }
 
@@ -99,7 +101,12 @@ final class ReservationService
                 'notes' => $dto->notes,
             ]);
         });
-        return $this->reservations->findById($id);
+        $reservation = $this->reservations->findById($id);
+        $this->notifications->notifyStaff(
+            $reservation,
+            $status === ReservationStatus::CONFIRMED ? NotificationTemplate::RESERVATION_BOOKED : NotificationTemplate::RESERVATION_REQUESTED
+        );
+        return $reservation;
     }
 
     /** Manager/admin accepts a pending booking; overlap is re-checked under the stadium lock. */
@@ -113,14 +120,20 @@ final class ReservationService
         Database::transaction(function () use ($reservation, $stadium, $slot) {
             $this->stadiums->lockById($stadium->id);
             $this->conflicts->assertNoConflict($stadium, $slot, $reservation->id);
+            $this->reservations->lockById($reservation->id);
+            $this->assertTransition($this->reservations->findById($reservation->id), ReservationStatus::CONFIRMED);
             $this->reservations->update($reservation->id, ['status' => ReservationStatus::CONFIRMED->value, 'status_reason' => null]);
         });
-        return $this->reservations->findById($reservation->id);
+        $confirmed = $this->reservations->findById($reservation->id);
+        $this->notifications->notifyCustomer($confirmed, NotificationTemplate::RESERVATION_CONFIRMED);
+        return $confirmed;
     }
 
     public function reject(User $actor, string $code, StatusChangeDto $dto): Reservation
     {
-        return $this->changeStatus($this->findManageable($actor, $code), ReservationStatus::REJECTED, $dto->reason);
+        $rejected = $this->changeStatus($this->findManageable($actor, $code), ReservationStatus::REJECTED, $dto->reason);
+        $this->notifications->notifyCustomer($rejected, NotificationTemplate::RESERVATION_REJECTED);
+        return $rejected;
     }
 
     /** Owner (before the cutoff for confirmed bookings), the stadium's manager, or an admin. */
@@ -135,7 +148,9 @@ final class ReservationService
                 ErrorCodes::CANCEL_CUTOFF_PASSED
             );
         }
-        return $this->changeStatus($reservation, ReservationStatus::CANCELLED, $dto->reason);
+        $cancelled = $this->changeStatus($reservation, ReservationStatus::CANCELLED, $dto->reason);
+        $this->notifications->notifyOtherParty($actor, $cancelled, NotificationTemplate::RESERVATION_CANCELLED);
+        return $cancelled;
     }
 
     public function complete(User $actor, string $code): Reservation
@@ -145,7 +160,9 @@ final class ReservationService
         if (!$reservation->hasEnded()) {
             throw new ConflictException('A booking can be completed only after it ends.', ErrorCodes::INVALID_TRANSITION);
         }
-        return $this->changeStatus($reservation, ReservationStatus::COMPLETED, null);
+        $completed = $this->changeStatus($reservation, ReservationStatus::COMPLETED, null);
+        $this->notifications->notifyCustomer($completed, NotificationTemplate::RESERVATION_COMPLETED);
+        return $completed;
     }
 
     /**
@@ -170,6 +187,10 @@ final class ReservationService
 
         Database::transaction(function () use ($reservation, $stadium, $slot, $unitPrice) {
             $this->stadiums->lockById($stadium->id);
+            $this->reservations->lockById($reservation->id);
+            if (!$this->reservations->findById($reservation->id)->status->blocksSlot()) {
+                throw new ConflictException('This booking was cancelled or closed meanwhile.', ErrorCodes::INVALID_TRANSITION);
+            }
             $this->conflicts->assertNoConflict($stadium, $slot, $reservation->id);
             $total = $this->conflicts->priceFor($slot, $unitPrice);
             $this->reservations->update($reservation->id, [
@@ -183,13 +204,19 @@ final class ReservationService
                 )->value,
             ]);
         });
-        return $this->reservations->findById($reservation->id);
+        $moved = $this->reservations->findById($reservation->id);
+        $this->notifications->notifyOtherParty($actor, $moved, NotificationTemplate::RESERVATION_RESCHEDULED);
+        return $moved;
     }
 
-    /** Pending bookings whose start passed become cancelled ("expired"). Runs before lists load. */
+    /** Pending bookings whose start passed become cancelled ("expired"); customers are told. Runs before lists load. */
     public function expireStalePending(): int
     {
-        return $this->reservations->expireStalePending();
+        $expired = $this->reservations->expireStalePending();
+        foreach ($expired as $reservation) {
+            $this->notifications->notifyCustomer($reservation, NotificationTemplate::RESERVATION_EXPIRED, [], false);
+        }
+        return count($expired);
     }
 
     public function cancelCutoffHours(): int
@@ -206,10 +233,14 @@ final class ReservationService
         return $reservation;
     }
 
+    /** Locks the row and re-checks the transition, so two concurrent actions cannot both apply. */
     private function changeStatus(Reservation $reservation, ReservationStatus $next, ?string $reason): Reservation
     {
-        $this->assertTransition($reservation, $next);
-        $this->reservations->update($reservation->id, ['status' => $next->value, 'status_reason' => $reason]);
+        Database::transaction(function () use ($reservation, $next, $reason) {
+            $this->reservations->lockById($reservation->id);
+            $this->assertTransition($this->reservations->findById($reservation->id), $next);
+            $this->reservations->update($reservation->id, ['status' => $next->value, 'status_reason' => $reason]);
+        });
         return $this->reservations->findById($reservation->id);
     }
 

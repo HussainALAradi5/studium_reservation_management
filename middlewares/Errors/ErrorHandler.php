@@ -9,13 +9,13 @@ use App\Constants\Common\ErrorCodes;
 use App\Exceptions\Common\AppException;
 use App\Utilities\Http\Redirect;
 use App\Utilities\Http\Request;
+use App\Utilities\Logging\Logger;
 use App\Utilities\Responses\ApiResponse;
 use App\Utilities\Views\View;
 
 /** Maps every exception to the JSON error shape (API) or an error page (HTML). */
 final class ErrorHandler
 {
-    private const LOG_FILE = BASE_DIR . '/storage/logs/app.log';
 
     public static function handle(\Throwable $error, Request $request): void
     {
@@ -49,16 +49,6 @@ final class ErrorHandler
     /** Logs the error without request bodies, so passwords and tokens never reach the log. */
     private static function log(\Throwable $error, Request $request): void
     {
-        $line = sprintf(
-            "[%s] %s %s — %s: %s in %s:%d\n",
-            date('c'),
-            $request->method(),
-            $request->path(),
-            $error::class,
-            $error->getMessage(),
-            $error->getFile(),
-            $error->getLine()
-        );
-        @file_put_contents(self::LOG_FILE, $line, FILE_APPEND | LOCK_EX);
+        Logger::error($request->method() . ' ' . $request->path(), $error);
     }
 }

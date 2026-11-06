@@ -7,6 +7,7 @@
 import { closeDialog } from '../core/dialog.js';
 import { on, qsa } from '../core/dom.js';
 import { http } from '../core/http.js';
+import { navigate } from '../core/navigation.js';
 import { setLoading } from '../core/button.js';
 import { toast } from '../core/toast.js';
 import { pickAlternative } from '../reservations/conflict-dialog.js';
@@ -19,7 +20,7 @@ export function clearErrors(form) {
     qsa('[data-error-for]', form).forEach((slot) => { slot.textContent = ''; });
 }
 
-export function showErrors(form, fieldErrors) {
+function showErrors(form, fieldErrors) {
     let first = null;
     for (const [name, message] of Object.entries(fieldErrors ?? {})) {
         const slot = form.querySelector(`[data-error-for="${CSS.escape(name)}"]`);
@@ -38,7 +39,7 @@ function afterSuccess(form, data) {
     toast.success(data?.message ?? 'Saved.');
     const mode = form.dataset.onSuccess ?? 'redirect';
     if (mode === 'redirect' && data?.redirect) {
-        window.location.assign(data.redirect);
+        navigate(data.redirect);
         return true;
     }
     if (mode === 'reload' || mode === 'redirect') {

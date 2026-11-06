@@ -24,6 +24,8 @@ enum Permission: string
     case CITIES_MANAGE = 'cities.manage';
     case USERS_MANAGE = 'users.manage';
     case SETTINGS_MANAGE = 'settings.manage';
+    case REVIEWS_WRITE = 'reviews.write';
+    case REVIEWS_MODERATE = 'reviews.moderate';
 
     public function label(): string
     {
@@ -38,6 +40,8 @@ enum Permission: string
             self::CITIES_MANAGE => 'Manage cities',
             self::USERS_MANAGE => 'Manage users',
             self::SETTINGS_MANAGE => 'Manage settings & permissions',
+            self::REVIEWS_WRITE => 'Rate stadiums they rented',
+            self::REVIEWS_MODERATE => 'Remove reviews of their stadiums',
         };
     }
 
@@ -52,8 +56,9 @@ enum Permission: string
                 self::STADIUMS_MANAGE,
                 self::EXPENSES_MANAGE,
                 self::REPORTS_VIEW,
+                self::REVIEWS_MODERATE,
             ],
-            UserRole::CUSTOMER => [self::RESERVATIONS_BOOK],
+            UserRole::CUSTOMER => [self::RESERVATIONS_BOOK, self::REVIEWS_WRITE],
         };
     }
 }

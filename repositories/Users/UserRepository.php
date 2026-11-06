@@ -10,6 +10,7 @@ use App\Dtos\Users\UserQuery;
 use App\Enums\Users\UserRole;
 use App\Models\Users\User;
 use App\Repositories\Base\BaseRepository;
+use App\Utilities\Formatting\IdentityNormalizer;
 use App\Utilities\Pagination\Paginator;
 
 final class UserRepository extends BaseRepository
@@ -34,7 +35,7 @@ final class UserRepository extends BaseRepository
 
     public function findByCode(string $code): ?User
     {
-        $row = $this->fetchOne('SELECT * FROM users WHERE code = :code AND deleted_at IS NULL', ['code' => $code]);
+        $row = $this->fetchOne('SELECT * FROM users WHERE code = :code AND deleted_at IS NULL', ['code' => IdentityNormalizer::code($code)]);
         return $row ? User::fromRow($row) : null;
     }
 
@@ -43,7 +44,7 @@ final class UserRepository extends BaseRepository
     {
         $row = $this->fetchOne(
             'SELECT * FROM users WHERE (username = :username OR email = :email) AND deleted_at IS NULL LIMIT 1',
-            ['username' => $identifier, 'email' => strtolower($identifier)]
+            ['username' => IdentityNormalizer::username($identifier), 'email' => IdentityNormalizer::email($identifier)]
         );
         return $row ? User::fromRow($row) : null;
     }
@@ -84,6 +85,16 @@ final class UserRepository extends BaseRepository
             ['role' => UserRole::MANAGER->value]
         );
         return array_map(static fn (array $row) => User::fromRow($row), $rows);
+    }
+
+    /** @return int[] ids of active admins (fallback recipients when a stadium has no manager) */
+    public function listActiveAdminIds(): array
+    {
+        $rows = $this->fetchAllRows(
+            'SELECT id FROM users WHERE role = :role AND is_active = 1 AND deleted_at IS NULL',
+            ['role' => UserRole::ADMIN->value]
+        );
+        return array_map('intval', array_column($rows, 'id'));
     }
 
     public function countManagedStadiums(int $userId): int

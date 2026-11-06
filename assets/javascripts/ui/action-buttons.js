@@ -8,6 +8,7 @@
 import { confirmDialog } from '../core/dialog.js';
 import { on } from '../core/dom.js';
 import { http } from '../core/http.js';
+import { navigate } from '../core/navigation.js';
 import { setLoading } from '../core/button.js';
 import { toast } from '../core/toast.js';
 
@@ -31,7 +32,7 @@ async function run(button) {
         const data = await http.send(method, action, method === 'DELETE' ? undefined : body);
         toast.success(data?.message ?? 'Done.');
         if (data?.redirect) {
-            window.location.assign(data.redirect);
+            navigate(data.redirect);
             return;
         }
         if (onSuccess === 'reload') {

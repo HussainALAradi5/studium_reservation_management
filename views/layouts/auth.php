@@ -16,11 +16,11 @@ $flash = Session::pullFlash();
 </head>
 <body<?= $flash ? ' data-flash="' . e(json_encode($flash)) . '"' : '' ?>>
 <?= partial('ui/icons') ?>
+<?= partial('layout/guestNav', ['currentPath' => $currentPath ?? '/']) ?>
 <div class="auth">
     <div class="auth__panel">
-        <div class="row-between" style="width:min(440px,100%);margin:0 auto 18px">
-            <a class="brand" style="padding:0" href="<?= e(url('/')) ?>"><span class="brand__mark"><?= icon('ball') ?></span> Studium</a>
-            <?= partial('layout/themeToggle') ?>
+        <div class="auth__back">
+            <?= button('Back', ['variant' => 'ghost', 'size' => 'sm', 'icon' => 'chevron-left', 'href' => url('/stadiums'), 'attrs' => ['data-back' => true]]) ?>
         </div>
         <div class="auth__card card anim-scale-in"><?= $content ?></div>
     </div>

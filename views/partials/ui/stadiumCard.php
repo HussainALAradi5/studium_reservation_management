@@ -8,7 +8,10 @@
         <span class="stadium-card__price"><?= e(money($stadium->pricePerHour)) ?> / hr</span>
     </div>
     <div class="stadium-card__body">
-        <h3 class="stadium-card__name"><?= e($stadium->name) ?></h3>
+        <div class="row-between">
+            <h3 class="stadium-card__name"><?= e($stadium->name) ?></h3>
+            <?= partial('ui/stars', ['rating' => $stadium->ratingAverage, 'count' => $stadium->ratingCount, 'compact' => true]) ?>
+        </div>
         <div class="stadium-card__meta">
             <span><?= icon('pin') ?><?= e($stadium->address->cityName) ?><?= $stadium->address->area ? ', ' . e($stadium->address->area) : '' ?></span>
             <span><?= icon('clock') ?><?= e($stadium->hoursLabel()) ?></span>
