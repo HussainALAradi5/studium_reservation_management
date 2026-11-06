@@ -10,8 +10,10 @@ import { initFieldHelpers } from './forms/field-helpers.js';
 import { initWheelPickers } from './forms/wheel-picker.js';
 import { initActionButtons } from './ui/action-buttons.js';
 import { initAnimations } from './ui/animate.js';
+import { initBackLinks } from './ui/back-link.js';
 import { initDialogTriggers } from './ui/dialog-triggers.js';
 import { initFilters } from './ui/filters.js';
+import { initNotificationBell, initNotificationLinks } from './ui/notification-bell.js';
 import { initSidebar } from './ui/sidebar.js';
 import { initTheme } from './ui/theme.js';
 
@@ -19,6 +21,7 @@ const lazyWidgets = [
     ['[data-booking-widget]', () => import('./stadiums/booking-widget.js'), 'initBookingWidget'],
     ['[data-map-view]', () => import('./stadiums/map-view.js'), 'initMapView'],
     ['[data-map-picker]', () => import('./stadiums/map-picker.js'), 'initMapPicker'],
+    ['[data-reviews]', () => import('./reviews/reviews-list.js'), 'initReviewsList'],
 ];
 
 function showFlash() {
@@ -44,5 +47,8 @@ initActionButtons();
 initDialogTriggers();
 initFilters();
 initAnimations();
+initBackLinks();
+initNotificationBell();
+initNotificationLinks();
 initLazyWidgets();
 showFlash();

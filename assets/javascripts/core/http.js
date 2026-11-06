@@ -19,7 +19,11 @@ export class ApiError extends Error {
 
 const NETWORK_ERROR = 'Network error. Check your connection and try again.';
 
-export async function request(url, { method = 'GET', body, signal } = {}) {
+/**
+ * Options: signal (abort), keepalive (finish even while the page navigates away),
+ * withMeta (resolve with { data, meta } for paginated endpoints instead of data only).
+ */
+export async function request(url, { method = 'GET', body, signal, keepalive = false, withMeta = false } = {}) {
     const headers = { Accept: 'application/json', 'X-Requested-With': 'fetch' };
     if (method !== 'GET') {
         headers['Content-Type'] = 'application/json';
@@ -34,6 +38,7 @@ export async function request(url, { method = 'GET', body, signal } = {}) {
             body: body === undefined ? undefined : JSON.stringify(body),
             credentials: 'same-origin',
             signal,
+            keepalive,
         });
     } catch (error) {
         if (error.name === 'AbortError') throw error;
@@ -45,7 +50,7 @@ export async function request(url, { method = 'GET', body, signal } = {}) {
         const error = payload?.error ?? {};
         throw new ApiError(response.status, error.code ?? 'SERVER_ERROR', error.message ?? 'Something went wrong.', error.details ?? {});
     }
-    return payload.data;
+    return withMeta ? { data: payload.data, meta: payload.meta ?? {} } : payload.data;
 }
 
 export const http = {

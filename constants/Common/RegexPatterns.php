@@ -27,6 +27,12 @@ final class RegexPatterns
     public const RECORD_CODE = '/^[A-Z]{3}-[A-Z0-9]{8}$/';
     public const TIME_HHMM = '/^([01]\d|2[0-3]):[0-5]\d$/';
     public const DATE_ISO = '/^\d{4}-\d{2}-\d{2}$/';
+    /** Spaces, dashes, dots, and brackets people type inside phone numbers ("+973 3300-0001"). */
+    public const PHONE_SEPARATORS = '/[\s\-().]/';
+    /** Runs of whitespace, collapsed to one space. */
+    public const WHITESPACE_RUN = '/\s+/u';
+    /** Named placeholders in notification templates, e.g. ":stadium". */
+    public const TEMPLATE_PLACEHOLDER = '/:([a-z]+)/';
     public const PASSWORD_LETTER = '/[A-Za-z]/';
     public const PASSWORD_DIGIT = '/\d/';
 

@@ -13,6 +13,7 @@
  * into [data-error-for="name"].
  */
 use App\Constants\Common\RegexPatterns;
+use App\Constants\Reviews\ReviewRules;
 
 $type = $field['type'] ?? 'text';
 $name = $field['name'];
@@ -65,6 +66,13 @@ $common = [
                         <option value="<?= e($optionValue) ?>"<?= (string) $optionValue === (string) $value ? ' selected' : '' ?>><?= e($optionLabel) ?></option>
                     <?php endforeach; ?>
                 </select>
+            <?php elseif ($type === 'rating'): ?>
+                <div class="rating-input" role="radiogroup" aria-label="<?= e($field['label'] ?? 'Rating') ?>">
+                    <?php for ($star = ReviewRules::MAX_RATING; $star >= ReviewRules::MIN_RATING; $star--): ?>
+                        <input type="radio" class="sr-only" id="<?= e($id . '-' . $star) ?>" name="<?= e($name) ?>" value="<?= $star ?>"<?= (string) $value === (string) $star ? ' checked' : '' ?>>
+                        <label for="<?= e($id . '-' . $star) ?>" title="<?= $star ?> star<?= $star > 1 ? 's' : '' ?>"><?= icon('star') ?></label>
+                    <?php endfor; ?>
+                </div>
             <?php elseif ($type === 'textarea'): ?>
                 <textarea class="textarea"<?= attrs([...$common, 'maxlength' => $field['maxlength'] ?? null]) ?>><?= e($value) ?></textarea>
             <?php else: ?>

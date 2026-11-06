@@ -16,6 +16,8 @@ final class CodePrefixes
     public const EXPENSE = 'EXP';
     public const SETTING = 'SET';
     public const ROLE_PERMISSION = 'RPM';
+    public const NOTIFICATION = 'NTF';
+    public const REVIEW = 'REV';
     public const LENGTH = 8;
     public const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 }

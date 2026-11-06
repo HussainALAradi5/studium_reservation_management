@@ -25,6 +25,7 @@ $canSettings = can(Permission::SETTINGS_MANAGE);
         <?= $link('/dashboard', 'home', 'Dashboard') ?>
         <?= $link('/stadiums', 'stadium', 'Find a stadium') ?>
         <?= $link('/reservations', 'calendar', $user->isCustomer() ? 'My bookings' : 'Reservations') ?>
+        <?= $link('/notifications', 'bell', 'Notifications') ?>
 
         <?php if ($canManageStadiums || $canExpenses || $canReports): ?>
             <div class="nav-section">Manage</div>

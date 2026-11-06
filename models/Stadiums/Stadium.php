@@ -27,6 +27,8 @@ final class Stadium extends BaseEntity
     public string $openingTime = '';
     public string $closingTime = '';
     public int $slotMinutes = 60;
+    public float $ratingAverage = 0.0;
+    public int $ratingCount = 0;
     public bool $isActive = true;
 
     public static function fromRow(array $row): static
@@ -48,6 +50,8 @@ final class Stadium extends BaseEntity
         $stadium->openingTime = substr($row['opening_time'], 0, 5);
         $stadium->closingTime = substr($row['closing_time'], 0, 5);
         $stadium->slotMinutes = (int) $row['slot_minutes'];
+        $stadium->ratingAverage = (float) ($row['rating_average'] ?? 0);
+        $stadium->ratingCount = (int) ($row['rating_count'] ?? 0);
         $stadium->isActive = (bool) $row['is_active'];
         return $stadium;
     }

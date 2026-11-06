@@ -9,6 +9,7 @@
  * @var array<string, string> $transactionTypes
  * @var array<string, string> $bookingUnits
  */
+use App\Constants\Common\RegexPatterns;
 use App\Enums\Reservations\BookingUnit;
 use App\Enums\Users\Permission;
 
@@ -133,7 +134,7 @@ $sameDay = substr($reservation->startAt, 0, 10) === substr($reservation->endAt, 
                 ['name' => 'method', 'label' => 'Method', 'type' => 'select', 'options' => $methods, 'required' => true],
                 ['name' => 'amount', 'label' => 'Amount', 'type' => 'number', 'step' => '0.001', 'min' => '0.001', 'required' => true, 'icon' => 'cash', 'hint' => 'Balance: ' . money($reservation->balance()) . ' · Paid: ' . money($reservation->paidAmount)],
                 ['name' => 'paidAt', 'label' => 'Paid at', 'type' => 'datetime', 'required' => true, 'value' => date('Y-m-d H:i'), 'max' => date('Y-m-d')],
-                ['name' => 'reference', 'label' => 'Reference', 'placeholder' => 'Receipt or transaction no.', 'pattern' => \App\Constants\Common\RegexPatterns::PAYMENT_REFERENCE],
+                ['name' => 'reference', 'label' => 'Reference', 'placeholder' => 'Receipt or transaction no.', 'pattern' => RegexPatterns::PAYMENT_REFERENCE],
                 ['name' => 'notes', 'label' => 'Notes'],
             ],
         ]),

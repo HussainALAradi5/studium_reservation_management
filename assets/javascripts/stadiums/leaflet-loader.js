@@ -30,7 +30,7 @@ export function createMap(L, element, { lat, lng, zoom, tileUrl, interactive = t
 export function pinIcon(L) {
     return L.divIcon({
         className: '',
-        html: '<div style="width:28px;height:28px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:linear-gradient(135deg,#10b981,#0ea5e9);border:3px solid #fff;box-shadow:0 6px 14px rgba(0,0,0,.3)"></div>',
+        html: '<div style="width:28px;height:28px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:linear-gradient(135deg,#5b93c7,#284f78);border:3px solid #fff;box-shadow:0 6px 14px rgba(0,0,0,.3)"></div>',
         iconSize: [28, 28],
         iconAnchor: [14, 28],
     });

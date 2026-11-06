@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Dtos\Users;
 
+use App\Utilities\Formatting\IdentityNormalizer;
 use App\Validations\Common\Validator;
 
 final class LoginDto
@@ -17,10 +18,10 @@ final class LoginDto
 
     public static function fromInput(array $input, string $ip): self
     {
-        $data = (new Validator($input))
+        $data = (new Validator(IdentityNormalizer::userInput($input)))
             ->string('identifier', 'Username or email', 3, 160)
             ->string('password', 'Password', 1, 255)
             ->validated();
-        return new self(strtolower($data['identifier']), (string) ($input['password'] ?? ''), $ip);
+        return new self($data['identifier'], (string) ($input['password'] ?? ''), $ip);
     }
 }

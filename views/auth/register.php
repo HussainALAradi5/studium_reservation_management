@@ -1,4 +1,5 @@
 <?php
+/** @var string $next */
 use App\Constants\Common\RegexPatterns;
 use App\Constants\Users\AuthRules;
 ?>
@@ -18,6 +19,7 @@ use App\Constants\Users\AuthRules;
         ['name' => 'email', 'label' => 'Email', 'type' => 'email', 'required' => true, 'full' => true, 'autocomplete' => 'email'],
         ['name' => 'password', 'label' => 'Password', 'type' => 'password', 'required' => true, 'autocomplete' => 'new-password', 'minlength' => AuthRules::PASSWORD_MIN_LENGTH, 'hint' => 'At least 8 characters with a letter and a digit.'],
         ['name' => 'passwordConfirmation', 'label' => 'Confirm password', 'type' => 'password', 'required' => true, 'autocomplete' => 'new-password'],
+        ['name' => 'next', 'type' => 'hidden', 'value' => $next],
     ],
 ]) ?>
-<p class="auth__switch">Already have an account? <a href="<?= e(url('/login')) ?>">Sign in</a></p>
+<p class="auth__switch">Already have an account? <a href="<?= e(url('/login', ['next' => $next])) ?>">Sign in</a></p>

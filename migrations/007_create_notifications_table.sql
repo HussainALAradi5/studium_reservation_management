@@ -1,0 +1,21 @@
+CREATE TABLE notifications (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(20) NOT NULL,
+    user_id INT UNSIGNED NOT NULL,
+    template VARCHAR(60) NOT NULL,
+    title VARCHAR(120) NOT NULL,
+    body VARCHAR(500) NOT NULL,
+    related_type VARCHAR(30) NULL,
+    related_code VARCHAR(20) NULL,
+    read_at DATETIME NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    created_by INT UNSIGNED NULL,
+    updated_by INT UNSIGNED NULL,
+    deleted_at DATETIME NULL,
+    deleted_by INT UNSIGNED NULL,
+    UNIQUE KEY uq_notifications_code (code),
+    KEY ix_notifications_inbox (user_id, read_at, created_at),
+    KEY ix_notifications_related (related_type, related_code),
+    CONSTRAINT fk_notifications_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

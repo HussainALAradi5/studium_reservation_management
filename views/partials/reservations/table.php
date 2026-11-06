@@ -4,13 +4,13 @@
  *
  * @var \App\Models\Reservations\Reservation[] $reservations
  * @var bool $showCustomer
+ * @var int $cancelCutoffHours  setting value passed by the controller
  * @var array|null $empty
  */
 use App\Services\Common\AccessPolicy;
-use App\Services\Reservations\ReservationService;
 
 $user = current_user();
-$cutoff = (new ReservationService())->cancelCutoffHours();
+$cutoff = $cancelCutoffHours;
 $columns = ['booking' => 'Booking', 'when' => 'When', 'size' => 'Rental'];
 if ($showCustomer) {
     $columns['customer'] = 'Customer';

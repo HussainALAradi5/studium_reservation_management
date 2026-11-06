@@ -28,39 +28,61 @@
     text-decoration: none;
     box-shadow: var(--btn-shadow);
     -webkit-tap-highlight-color: transparent;
+    backface-visibility: hidden;
     transition:
-        transform var(--fast) var(--ease),
-        box-shadow var(--normal) var(--ease),
+        transform 220ms var(--ease),
+        box-shadow 320ms var(--ease),
         background-color var(--normal) var(--ease),
+        background-position 600ms var(--ease),
         border-color var(--normal) var(--ease),
         color var(--normal) var(--ease),
         opacity var(--normal) var(--ease);
 }
 
-.btn:hover { text-decoration: none; transform: translateY(-1px); box-shadow: var(--shadow); }
-.btn:active { transform: translateY(0) scale(0.97); }
+.btn:hover { text-decoration: none; }
+.btn:active { transform: scale(0.97); transition-duration: 90ms; }
 .btn:focus-visible { box-shadow: var(--ring); }
 
-/* Sheen that sweeps across on hover */
+/* Shine: one forward sweep each time the pointer enters (never plays backwards on leave). */
 .btn::after {
     content: "";
     position: absolute;
-    inset: 0;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 60%;
     z-index: -1;
-    background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.28) 50%, transparent 70%);
-    transform: translateX(-120%);
-    transition: transform 700ms var(--ease);
+    pointer-events: none;
+    background: linear-gradient(100deg, transparent 0%, rgba(255, 255, 255, 0.32) 50%, transparent 100%);
+    transform: translateX(-160%) skewX(-12deg);
+    opacity: 0;
 }
-.btn:hover::after { transform: translateX(120%); }
+
+/* Lift and shine only on devices with a real hover (no sticky hover on touch screens). */
+@media (hover: hover) and (pointer: fine) {
+    .btn:hover:not(:disabled):not(.is-loading) { transform: translateY(-2px); box-shadow: var(--shadow); }
+    .btn:hover:not(:disabled):not(.is-loading)::after { animation: btn-shine 850ms var(--ease) 1 both; }
+    .btn:active:not(:disabled) { transform: translateY(0) scale(0.97); }
+}
+
+@keyframes btn-shine {
+    0% { transform: translateX(-160%) skewX(-12deg); opacity: 0; }
+    15% { opacity: 1; }
+    100% { transform: translateX(260%) skewX(-12deg); opacity: 0; }
+}
 
 .btn--primary {
     --btn-bg: var(--primary-gradient);
     --btn-fg: #fff;
     --btn-border: transparent;
-    --btn-shadow: 0 8px 20px -8px rgba(16, 185, 129, 0.65);
+    --btn-shadow: 0 8px 20px -10px var(--glow);
     background: var(--btn-bg);
+    background-size: 180% 100%;
+    background-position: 0% 50%;
 }
-.btn--primary:hover { box-shadow: 0 14px 28px -10px rgba(16, 185, 129, 0.7); }
+@media (hover: hover) and (pointer: fine) {
+    .btn--primary:hover:not(:disabled):not(.is-loading) { background-position: 100% 50%; box-shadow: 0 14px 28px -12px var(--glow); }
+}
 
 .btn--secondary { --btn-bg: var(--primary-soft); --btn-fg: var(--primary); --btn-border: transparent; --btn-shadow: none; }
 .btn--ghost { --btn-bg: transparent; --btn-border: transparent; --btn-shadow: none; --btn-fg: var(--text-muted); }

@@ -9,6 +9,7 @@ use App\Dtos\Common\PageResult;
 use App\Dtos\Regional\CityQuery;
 use App\Models\Regional\City;
 use App\Repositories\Base\BaseRepository;
+use App\Utilities\Formatting\IdentityNormalizer;
 use App\Utilities\Pagination\Paginator;
 
 final class CityRepository extends BaseRepository
@@ -33,7 +34,7 @@ final class CityRepository extends BaseRepository
 
     public function findByCode(string $code): ?City
     {
-        $row = $this->fetchOne('SELECT * FROM cities WHERE code = :code AND deleted_at IS NULL', ['code' => $code]);
+        $row = $this->fetchOne('SELECT * FROM cities WHERE code = :code AND deleted_at IS NULL', ['code' => IdentityNormalizer::code($code)]);
         return $row ? City::fromRow($row) : null;
     }
 

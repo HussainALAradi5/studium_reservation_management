@@ -6,8 +6,10 @@ use App\Controllers\Accounting\ExpenseController;
 use App\Controllers\Accounting\PaymentController;
 use App\Controllers\Accounting\ReportController;
 use App\Controllers\Home\HomeController;
+use App\Controllers\Notifications\NotificationController;
 use App\Controllers\Regional\CityController;
 use App\Controllers\Reservations\ReservationController;
+use App\Controllers\Reviews\ReviewController;
 use App\Controllers\Settings\SettingsController;
 use App\Controllers\Stadiums\StadiumController;
 use App\Controllers\Users\AuthController;
@@ -42,6 +44,18 @@ return static function (Router $router): void {
     $router->group(['auth'], static function (Router $router) use ($can): void {
         $router->post('/api/auth/logout', [AuthController::class, 'logout']);
         $router->get('/dashboard', [HomeController::class, 'dashboard']);
+
+        // Notifications (always the signed-in user's own)
+        $router->get('/notifications', [NotificationController::class, 'index']);
+        $router->get('/api/notifications', [NotificationController::class, 'feed']);
+        $router->get('/api/notifications/unread-count', [NotificationController::class, 'unreadCount']);
+        $router->post('/api/notifications/read-all', [NotificationController::class, 'markAllRead']);
+        $router->post('/api/notifications/{code}/read', [NotificationController::class, 'markRead']);
+
+        // Reviews: signed-in users read; customers who played there write once
+        $router->get('/api/stadiums/{code}/reviews', [ReviewController::class, 'index']);
+        $router->post('/api/stadiums/{code}/reviews', [ReviewController::class, 'store'], [$can(P::REVIEWS_WRITE)]);
+        $router->delete('/api/reviews/{code}', [ReviewController::class, 'destroy']);
 
         $router->get('/profile', [ProfileController::class, 'show']);
         $router->put('/api/profile', [ProfileController::class, 'update']);

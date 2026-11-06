@@ -10,6 +10,7 @@ use App\Dtos\Common\PageResult;
 use App\Dtos\Stadiums\StadiumQuery;
 use App\Models\Stadiums\Stadium;
 use App\Repositories\Base\BaseRepository;
+use App\Utilities\Formatting\IdentityNormalizer;
 use App\Utilities\Pagination\Paginator;
 
 final class StadiumRepository extends BaseRepository
@@ -43,7 +44,7 @@ final class StadiumRepository extends BaseRepository
 
     public function findByCode(string $code): ?Stadium
     {
-        return $this->findOneWhere('s.code = :code', ['code' => $code]);
+        return $this->findOneWhere('s.code = :code', ['code' => IdentityNormalizer::code($code)]);
     }
 
     /** Locks the stadium row until the transaction ends; serializes bookings of one stadium. */

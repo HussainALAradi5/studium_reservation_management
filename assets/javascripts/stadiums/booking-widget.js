@@ -285,7 +285,7 @@ export function initBookingWidget(root) {
                 notes: ui.notes?.value.trim() || '',
             });
             toast.success(data.message);
-            window.location.assign(data.redirect);
+            navigate(data.redirect);
         } catch (error) {
             setLoading(ui.book, false);
             if (error.code === 'RESERVATION_CONFLICT') {

@@ -26,6 +26,7 @@ $flash = Session::pullFlash();
                 <?= button('Open menu', ['variant' => 'ghost', 'iconOnly' => true, 'icon' => 'menu', 'attrs' => ['class' => 'topbar__menu', 'data-nav-toggle' => true, 'aria-controls' => 'sidebar']]) ?>
                 <div class="topbar__title"><?= e($title ?? '') ?></div>
                 <?= partial('layout/themeToggle') ?>
+                <?= partial('layout/notificationBell') ?>
                 <a class="user-chip" href="<?= e(url('/profile')) ?>">
                     <span class="avatar"><?= e($user->initials()) ?></span>
                     <span class="user-chip__text">
@@ -39,15 +40,7 @@ $flash = Session::pullFlash();
     </div>
 <?php else: ?>
     <div class="shell shell--guest">
-        <nav class="guest-nav glass" aria-label="Main navigation">
-            <a class="brand" href="<?= e(url('/')) ?>"><span class="brand__mark"><?= icon('ball') ?></span> Studium</a>
-            <div class="guest-nav__links">
-                <a class="nav-link<?= nav_active($currentPath ?? '/', '/stadiums') ?>" href="<?= e(url('/stadiums')) ?>"><?= icon('stadium') ?><span>Stadiums</span></a>
-            </div>
-            <?= partial('layout/themeToggle') ?>
-            <?= button('Sign in', ['variant' => 'ghost', 'href' => url('/login'), 'icon' => 'login']) ?>
-            <?= button('Get started', ['href' => url('/register'), 'pill' => true, 'attrs' => ['class' => 'btn__label-optional']]) ?>
-        </nav>
+        <?= partial('layout/guestNav', ['currentPath' => $currentPath ?? '/']) ?>
         <main class="guest-content" id="main"><?= $content ?></main>
         <footer class="footer">&copy; <?= date('Y') ?> Studium · Stadium rentals made simple</footer>
     </div>

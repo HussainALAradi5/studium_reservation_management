@@ -39,6 +39,7 @@ final class HomeController extends Controller
         $data = [
             'title' => 'Dashboard',
             'upcoming' => $reservations->listUpcoming($user, self::UPCOMING_COUNT),
+            'cancelCutoffHours' => $reservations->cancelCutoffHours(),
             'statusCounts' => $reservations->countByStatus($user),
             'summary' => null,
             'roleCounts' => [],

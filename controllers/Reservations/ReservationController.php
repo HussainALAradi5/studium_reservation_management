@@ -25,9 +25,11 @@ final class ReservationController extends Controller
     public function index(Request $request): void
     {
         $user = $this->user();
+        $service = new ReservationService();
         $this->render($request, 'reservations/index', [
             'title' => $user->isCustomer() ? 'My bookings' : 'Reservations',
-            'page' => (new ReservationService())->list($user, ReservationQuery::fromQuery($request->queryAll())),
+            'page' => $service->list($user, ReservationQuery::fromQuery($request->queryAll())),
+            'cancelCutoffHours' => $service->cancelCutoffHours(),
             'filters' => $request->queryAll(),
             'statuses' => ReservationStatus::options(),
             'stadiums' => $user->isCustomer() ? [] : (new StadiumService())->listForSelect($user),

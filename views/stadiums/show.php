@@ -6,6 +6,9 @@
  * @var array<string, string> $bookingUnits
  * @var int $maxHours
  * @var int $maxDays
+ * @var \App\Dtos\Common\PageResult|null $reviewPage
+ * @var \App\Enums\Reviews\ReviewEligibility|null $eligibility
+ * @var bool $canModerateReviews
  */
 use App\Utilities\Formatting\AddressFormatter;
 
@@ -30,6 +33,7 @@ $config = [
             <?= badge($stadium->surfaceType->label(), 'neutral', ['solid' => true, 'dot' => false]) ?>
         </div>
         <h1><?= e($stadium->name) ?></h1>
+        <a class="stadium-hero__rating" href="#reviews"><?= partial('ui/stars', ['rating' => $stadium->ratingAverage, 'count' => $stadium->ratingCount]) ?></a>
         <div class="row small" style="opacity:.9"><?= icon('pin') ?><?= e($address->formatted()) ?></div>
     </div>
 </div>
@@ -65,16 +69,35 @@ $config = [
         <?php endif; ?>
         <?php $mapBody = ob_get_clean(); ?>
         <?= partial('ui/genericCard', ['title' => 'Location', 'icon' => 'pin', 'subtitle' => $address->formatted(), 'animate' => 'fade-up', 'body' => $mapBody]) ?>
+
+        <?= partial('reviews/section', [
+            'stadium' => $stadium,
+            'reviewPage' => $reviewPage,
+            'eligibility' => $eligibility,
+            'canModerateReviews' => $canModerateReviews,
+        ]) ?>
     </div>
 
     <section class="card booking" data-booking-widget data-config="<?= e(json_encode($config)) ?>" data-animate="slide-in-right">
         <div class="card__header">
             <h2 class="card__title"><?= icon('calendar') ?>Book this stadium</h2>
         </div>
-        <div class="card__body stack">
+        <div class="card__body stack<?= $user === null ? ' locked' : '' ?>">
+            <?php if ($user === null): ?>
+                <div class="locked__overlay" role="region" aria-label="Booking locked">
+                    <div class="locked__icon"><?= icon('lock', 'icon icon-lg') ?></div>
+                    <strong class="locked__title">You must register first</strong>
+                    <p class="muted small" style="margin:0">Create a free account to see prices for your times and book this stadium.</p>
+                    <div class="btn-group" style="justify-content:center">
+                        <?= button('Register', ['icon' => 'sparkles', 'href' => url('/register', ['next' => '/stadiums/' . $stadium->code])]) ?>
+                        <?= button('Sign in', ['variant' => 'secondary', 'icon' => 'login', 'href' => $config['loginUrl']]) ?>
+                    </div>
+                </div>
+            <?php endif; ?>
             <?php if (!$canBook): ?>
                 <div class="alert tone-info"><?= icon('info') ?><div>Bookings are made by customers. You can review this stadium's bookings from Reservations.</div></div>
             <?php else: ?>
+                <?php if ($user === null): ?><div class="locked__preview" inert aria-hidden="true"><?php endif; ?>
                 <?php if ($stadium->allowsDailyBooking()): ?>
                     <div class="segmented" role="tablist" aria-label="Booking type">
                         <?php foreach ($bookingUnits as $value => $label): ?>
@@ -131,6 +154,7 @@ $config = [
                     <textarea class="textarea" id="booking-notes" maxlength="500" data-notes placeholder="Team name, equipment needs…" style="min-height:70px"></textarea>
                 </div>
                 <?= button('Select a time first', ['size' => 'lg', 'block' => true, 'icon' => 'check', 'loadingText' => 'Booking…', 'disabled' => true, 'attrs' => ['data-book' => true]]) ?>
+                <?php if ($user === null): ?></div><?php endif; ?>
             <?php endif; ?>
         </div>
     </section>
