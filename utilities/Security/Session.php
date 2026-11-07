@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Utilities\Security;
 
+use App\Config\App\AppConfig;
+
 /** Hardened PHP session wrapper. */
 final class Session
 {
@@ -14,12 +16,11 @@ final class Session
         if (session_status() === PHP_SESSION_ACTIVE) {
             return;
         }
-        $isHttps = ($_SERVER['HTTPS'] ?? 'off') !== 'off';
         session_name('studium_session');
         session_set_cookie_params([
             'lifetime' => 0,
             'path' => '/',
-            'secure' => $isHttps,
+            'secure' => AppConfig::isHttps(),
             'httponly' => true,
             'samesite' => 'Lax',
         ]);

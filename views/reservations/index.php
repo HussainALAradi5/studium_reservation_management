@@ -33,7 +33,7 @@ $filterFields[] = ['name' => 'to', 'label' => 'To', 'type' => 'date'];
         <div class="card__body">
             <?= partial('reservations/table', [
                 'reservations' => $page->items,
-            'cancelCutoffHours' => $cancelCutoffHours,
+                'cancelCutoffHours' => $cancelCutoffHours,
                 'showCustomer' => !$user->isCustomer(),
                 'empty' => ['title' => 'No bookings match', 'message' => 'Try clearing the filters.', 'icon' => 'calendar'],
             ]) ?>
