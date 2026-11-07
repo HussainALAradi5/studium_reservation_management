@@ -10,7 +10,11 @@ use App\Repositories\Stadiums\StadiumRepository;
 /** Sample stadiums assigned to the seeded manager; runs only when new cities were created. */
 final class StadiumsSeed
 {
-    private const STADIUMS = [
+    /**
+     * Demo stadiums: [city, name, sport, surface, capacity, price/hour, price/day, opens, closes, slot,
+     * street, block, area, lat, lng]. Also exported for live use by bin/export-demo-sql.php.
+     */
+    public const STADIUMS = [
         ['Manama', 'Seef Arena', 'football', 'artificial_turf', 22, 25.000, 180.000, '08:00', '02:00', 60, 'Road 2825', '2801', 'Seef', 26.2361, 50.5409],
         ['Riffa', 'Riffa Padel Club', 'padel', 'hard_court', 4, 12.000, null, '07:00', '23:00', 30, 'Road 105', '901', 'East Riffa', 26.1269, 50.5753],
         ['Muharraq', 'Muharraq Sports Hall', 'basketball', 'wooden', 10, 18.000, 120.000, '09:00', '22:00', 60, 'Road 1520', '215', 'Arad', 26.2541, 50.6200],

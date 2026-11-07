@@ -9,7 +9,8 @@ use App\Repositories\Regional\CityRepository;
 
 final class CitiesSeed
 {
-    private const CITIES = ['Manama', 'Muharraq', 'Riffa', 'Isa Town', 'Hamad Town', 'Sitra'];
+    /** Demo cities (also exported for live use by bin/export-demo-sql.php). */
+    public const CITIES = ['Manama', 'Muharraq', 'Riffa', 'Isa Town', 'Hamad Town', 'Sitra'];
 
     /** @return array<string, int> name => id */
     public function run(): array

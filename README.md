@@ -98,7 +98,13 @@ The live site runs on InfinityFree's free plan (PHP 8 + MySQL + Apache, no comma
 
 5. **Upload:** *File Manager* → `htdocs` → delete the default files → upload the contents of the zip (including `.htaccess`), and create the folders `storage/logs`.
 6. **Configure:** create `htdocs/.env` from `.env.example` with `APP_ENV=production`, `APP_DEBUG=false`, `APP_TRUST_PROXY=true`, and the `DB_*` values from step 2 (`DB_PASS` = the hosting account password shown on the MySQL page).
-7. **Check:** open the site, sign in as the admin, and add cities, managers, and stadiums.
+7. **Demo content (optional):** export the demo cities and stadiums and import `deploy/studium-demo-data.sql` in phpMyAdmin. It is safe to import again (existing names are skipped) and contains no demo logins; `--with-manager` adds one real manager account (you choose a strong password) and assigns the stadiums to it.
+
+   ```bash
+   /c/xampp/php/php.exe bin/export-demo-sql.php
+   ```
+
+8. **Check:** open the site, sign in as the admin, and add cities, managers, and stadiums.
 
 For an update, repeat steps 4–5 (overwrite the files, keep `.env`); if a release adds migrations, run their SQL from `migrations/` in phpMyAdmin.
 
