@@ -6,19 +6,9 @@
  * @var bool|null $needsMap  load Leaflet CSS for map pages
  */
 use App\Config\App\AppConfig;
+use App\Config\App\Assets;
 
-$styles = [
-    'css/base/tokens.css',
-    'css/base/base.css',
-    'css/components/animations.css',
-    'css/components/buttons.css',
-    'css/components/surfaces.css',
-    'css/components/forms.css',
-    'css/components/wheel-picker.css',
-    'css/components/overlays.css',
-    'css/layout/shell.css',
-    'css/pages/pages.css',
-];
+$styles = Assets::stylesheets();
 ?>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">

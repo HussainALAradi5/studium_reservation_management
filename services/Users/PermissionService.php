@@ -68,4 +68,24 @@ final class PermissionService
         });
         self::$cache = [];
     }
+
+    /**
+     * Production-safe: grants the defaults only to roles that have no grants at all, so an admin's
+     * later customisations are never overwritten. Returns the roles that were initialised.
+     * @return string[]
+     */
+    public function seedDefaultsForEmptyRoles(): array
+    {
+        $initialised = [];
+        foreach (UserRole::cases() as $role) {
+            if ($role === UserRole::ADMIN || $this->grants->listForRole($role->value) !== []) {
+                continue;
+            }
+            $values = array_map(static fn (Permission $p) => $p->value, Permission::defaultsFor($role));
+            Database::transaction(fn () => $this->grants->replaceForRole($role->value, $values));
+            $initialised[] = $role->value;
+        }
+        self::$cache = [];
+        return $initialised;
+    }
 }

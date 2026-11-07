@@ -24,9 +24,11 @@ final class Env
         }
     }
 
+    /** Real environment variables (Docker, Render, CLI) win over the .env file. */
     public static function string(string $key, string $default = ''): string
     {
-        $value = self::$values[$key] ?? getenv($key);
+        $fromEnvironment = getenv($key);
+        $value = ($fromEnvironment !== false && $fromEnvironment !== '') ? $fromEnvironment : (self::$values[$key] ?? null);
         return ($value === false || $value === null || $value === '') ? $default : (string) $value;
     }
 

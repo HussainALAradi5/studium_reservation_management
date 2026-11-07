@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Middlewares\Security;
 
+use App\Config\App\AppConfig;
 use App\Utilities\Http\Request;
 
 /** Clickjacking, sniffing, referrer, and content-security headers on every response. */
 final class SecurityHeaders
 {
+    private const HSTS_MAX_AGE_SECONDS = 15552000; // 180 days
+
     private static ?string $nonce = null;
 
     public static function nonce(): string
@@ -23,6 +26,9 @@ final class SecurityHeaders
         header('X-Content-Type-Options: nosniff');
         header('Referrer-Policy: strict-origin-when-cross-origin');
         header('Permissions-Policy: geolocation=(self), camera=(), microphone=()');
+        if (AppConfig::isHttps()) {
+            header('Strict-Transport-Security: max-age=' . self::HSTS_MAX_AGE_SECONDS);
+        }
         header('Content-Security-Policy: ' . implode('; ', [
             "default-src 'self'",
             "script-src 'self' 'nonce-$nonce' https://unpkg.com",

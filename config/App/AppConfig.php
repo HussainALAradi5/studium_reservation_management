@@ -22,6 +22,18 @@ final class AppConfig
         return Env::bool('APP_DEBUG') && !self::isProduction();
     }
 
+    /**
+     * True when the visitor reached the site over HTTPS. Behind a proxy that terminates SSL
+     * (Render, Cloudflare, InfinityFree), set APP_TRUST_PROXY=true so X-Forwarded-Proto is honoured.
+     */
+    public static function isHttps(): bool
+    {
+        if (($_SERVER['HTTPS'] ?? 'off') !== 'off') {
+            return true;
+        }
+        return Env::bool('APP_TRUST_PROXY') && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https';
+    }
+
     public static function timezone(): string
     {
         return Env::string('APP_TIMEZONE', 'Asia/Bahrain');
