@@ -98,11 +98,15 @@ The live site runs on InfinityFree's free plan (PHP 8 + MySQL + Apache, no comma
 
 5. **Upload:** *File Manager* → `htdocs` → delete the default files → upload the contents of the zip (including `.htaccess`), and create the folders `storage/logs`.
 6. **Configure:** create `htdocs/.env` from `.env.example` with `APP_ENV=production`, `APP_DEBUG=false`, `APP_TRUST_PROXY=true`, and the `DB_*` values from step 2 (`DB_PASS` = the hosting account password shown on the MySQL page).
-7. **Demo content (optional):** export the demo cities and stadiums and import `deploy/studium-demo-data.sql` in phpMyAdmin. It is safe to import again (existing names are skipped) and contains no demo logins; `--with-manager` adds one real manager account (you choose a strong password) and assigns the stadiums to it.
+7. **Demo content (optional):** export the demo cities and stadiums and import `deploy/studium-demo-data.sql` in phpMyAdmin. It is safe to import again (existing names and codes are skipped). Options:
+   - `--with-manager`: one real manager account (you choose a strong password) who gets the stadiums.
+   - `--with-people`: 2 managers and 8 customers with strong random passwords saved to the git-ignored `deploy/demo-accounts.txt`, plus bookings (past, today, upcoming, hourly and full-day), payments, reviews, expenses, and notifications dated relative to the import day. Bookings that would overlap existing ones are skipped.
 
    ```bash
-   /c/xampp/php/php.exe bin/export-demo-sql.php
+   /c/xampp/php/php.exe bin/export-demo-sql.php --with-people
    ```
+
+   Paste the file's content into phpMyAdmin's **SQL** tab (or use **Import**). Keep `deploy/demo-accounts.txt` private.
 
 8. **Check:** open the site, sign in as the admin, and add cities, managers, and stadiums.
 

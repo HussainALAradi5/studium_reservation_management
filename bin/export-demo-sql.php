@@ -8,7 +8,10 @@ declare(strict_types=1);
  * (same name) are skipped. No demo user accounts are exported; with --with-manager it asks for a
  * real manager account (strong password required) and assigns the demo stadiums to it.
  *
- * Usage: php bin/export-demo-sql.php [--with-manager]
+ * With --with-people it adds 2 managers and 8 customers (strong random passwords saved to the git-ignored
+ * deploy/demo-accounts.txt) plus bookings, payments, reviews, expenses, and notifications relative to today.
+ *
+ * Usage: php bin/export-demo-sql.php [--with-manager] [--with-people]
  */
 
 if (PHP_SAPI !== 'cli') {
@@ -22,12 +25,15 @@ use App\Constants\Stadiums\StadiumRules;
 use App\Dtos\Users\UserFormDto;
 use App\Enums\Users\UserRole;
 use App\Exceptions\Common\AppException;
+use App\Seeds\Demo\DemoPeople;
+use App\Seeds\Demo\DemoSqlBuilder;
 use App\Seeds\Regional\CitiesSeed;
 use App\Seeds\Stadiums\StadiumsSeed;
 use App\Utilities\Codes\CodeGenerator;
 use App\Utilities\Security\PasswordHasher;
 
 const OUTPUT_FILE = BASE_DIR . '/deploy/studium-demo-data.sql';
+const ACCOUNTS_FILE = BASE_DIR . '/deploy/demo-accounts.txt';
 
 function sqlValue(mixed $value): string
 {
@@ -144,6 +150,38 @@ foreach (StadiumsSeed::STADIUMS as [$city, $name, $sport, $surface, $capacity, $
 if (!is_dir(dirname(OUTPUT_FILE))) {
     mkdir(dirname(OUTPUT_FILE), 0775, true);
 }
+
+$withPeople = in_array('--with-people', $argv, true);
+if ($withPeople) {
+    // Reuse saved passwords so a re-export keeps working logins; new accounts get a fresh strong password.
+    $passwords = [];
+    if (is_file(ACCOUNTS_FILE)) {
+        foreach (file(ACCOUNTS_FILE, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
+            $parts = explode("\t", $line);
+            if (count($parts) === 3 && !str_starts_with($line, '#')) {
+                $passwords[$parts[0]] = $parts[1];
+            }
+        }
+    }
+    $lines = ["# Studium demo logins for the live site. Keep this file private (git-ignored).", "# username\tpassword\trole"];
+    foreach (DemoPeople::PEOPLE as [, $role, , $username]) {
+        $passwords[$username] ??= DemoSqlBuilder::generatePassword();
+        $lines[] = "$username\t{$passwords[$username]}\t$role";
+    }
+    file_put_contents(ACCOUNTS_FILE, implode("\n", $lines) . "\n");
+
+    $builder = new DemoSqlBuilder();
+    $sql = [...$sql, ...$builder->people($passwords), ...$builder->activity()];
+}
 file_put_contents(OUTPUT_FILE, implode("\n", $sql) . "\n");
-printf("Written: deploy/studium-demo-data.sql (%d cities, %d stadiums%s).\n", count(CitiesSeed::CITIES), count(StadiumsSeed::STADIUMS), $managerLookup === 'NULL' ? '' : ', 1 manager');
-echo "Import it into the live database with phpMyAdmin (Import tab). Safe to import again.\n";
+printf(
+    "Written: deploy/studium-demo-data.sql (%d cities, %d stadiums%s%s).\n",
+    count(CitiesSeed::CITIES),
+    count(StadiumsSeed::STADIUMS),
+    $managerLookup === 'NULL' ? '' : ', 1 manager',
+    $withPeople ? ', 2 managers + 8 customers with bookings, payments, reviews, expenses, notifications' : ''
+);
+echo "Import it into the live database with phpMyAdmin (Import or SQL tab). Safe to import again.\n";
+if ($withPeople) {
+    echo "Logins saved to deploy/demo-accounts.txt (git-ignored). Keep it private.\n";
+}
